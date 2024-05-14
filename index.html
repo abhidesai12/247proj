@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cardinal Conquest</title>
+    <style>
+        body { text-align: center; margin: 0; padding: 0; }
+        canvas { display: block; margin: auto; }
+    </style>
+</head>
+<body>
+    <h1>Cardinal Conquest</h1>
+    <div id="pygame-container"></div>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.18.1/full/pyodide.js"></script>
+    <script>
+        async function main() {
+            // Load Pyodide
+            let pyodide = await loadPyodide();
+            
+            // Load necessary packages
+            await pyodide.loadPackage('micropip');
+            const micropip = pyodide.pyimport('micropip');
+            await micropip.install('pygame-cffi');
+            
+            // Read the main.py file
+            const response = await fetch('main.py');
+            const scriptText = await response.text();
+            
+            // Run the Python script
+            await pyodide.runPythonAsync(scriptText);
+        }
+        main();
+    </script>
+</body>
+</html>

@@ -1,5 +1,5 @@
-import pygame
 import sys
+import pygame
 import random
 
 # Initialize Pygame
@@ -38,7 +38,7 @@ flame_frames = []
 N = 2  # Number of flame frames
 for i in range(1, N + 1):  # Assuming frames are named flame1.png, flame2.png, ..., flameN.png
     flame_image = pygame.image.load(f'images/flame{i}.png')
-    flame_image = pygame.transform.scale(flame_image, (40, 40))  # Scale to appropriate size
+    flame_image = pygame.transform.scale(flame_image, (60, 60))  # Scale to appropriate size
     flame_frames.extend([flame_image] * 5)  # Repeat each frame to make the animation last longer
 
 # Define player and tree attributes
