@@ -4,7 +4,6 @@ import random
 import math
 import json
 
-
 # Initialize Pygame
 pygame.init()
 
@@ -24,19 +23,13 @@ pygame.mixer.music.load("sound/background.mp3")
 
 # Load sprites
 background_image = pygame.image.load("images/background.png")
-background_image = pygame.transform.scale(
-    background_image, window_size
-)  # Scale to fit window size
+background_image = pygame.transform.scale(background_image, window_size)  # Scale to fit window size
 tree_sprite = pygame.image.load("images/tree.png")
 tree_sprite = pygame.transform.scale(tree_sprite, (60, 60))  # Scale to appropriate size
 heart_sprite = pygame.image.load("images/heart.png")
-heart_sprite = pygame.transform.scale(
-    heart_sprite, (30, 30)
-)  # Scale to appropriate size
+heart_sprite = pygame.transform.scale(heart_sprite, (30, 30))  # Scale to appropriate size
 student_sprite = pygame.image.load("images/student.png")
-student_sprite = pygame.transform.scale(
-    student_sprite, (95, 95)
-)  # Scale to appropriate size
+student_sprite = pygame.transform.scale(student_sprite, (95, 95))  # Scale to appropriate size
 
 # Load logo image
 logo_image = pygame.image.load("images/logo.png")
@@ -45,16 +38,10 @@ logo_image = pygame.transform.scale(logo_image, (350, 350))  # Adjust the size a
 # Load flame animation frames
 flame_frames = []
 N = 2  # Number of flame frames
-for i in range(
-    1, N + 1
-):  # Assuming frames are named flame1.png, flame2.png, ..., flameN.png
+for i in range(1, N + 1):  # Assuming frames are named flame1.png, flame2.png, ..., flameN.png
     flame_image = pygame.image.load(f"images/flame{i}.png")
-    flame_image = pygame.transform.scale(
-        flame_image, (50, 50)
-    )  # Scale to appropriate size
-    flame_frames.extend(
-        [flame_image] * 5
-    )  # Repeat each frame to make the animation last longer
+    flame_image = pygame.transform.scale(flame_image, (50, 50))  # Scale to appropriate size
+    flame_frames.extend([flame_image] * 5)  # Repeat each frame to make the animation last longer
 
 # Define player and tree attributes
 player = {
@@ -73,17 +60,15 @@ score = 0  # Initialize score
 with open("./assets/words.json", "r") as file:
     words = json.load(file)
 
-
 # Function to create a new tree
 def create_tree(word):
     tree = {
         "position": [random.randint(800, 1600), random.randint(50, 550)],
         "radius": 20,
-        "speed": random.uniform(0.5, 1.5),  # Reduced speed for trees
+        "speed": random.uniform(0.5, 1.5) + score * 0.01,  # Increase speed based on score
         "word": word,
     }
     trees.append(tree)
-
 
 # Function to wrap text
 def wrap_text(text, font, max_width):
@@ -99,7 +84,6 @@ def wrap_text(text, font, max_width):
             current_line = word + " "
     lines.append(current_line)
     return lines
-
 
 # Function to display scrolling text with moving logo
 def display_scrolling_text(window, lines, font, color, speed, logo):
@@ -138,7 +122,6 @@ def display_scrolling_text(window, lines, font, color, speed, logo):
         y -= speed
         pygame.time.delay(20)  # Decrease the delay to speed up the scrolling
 
-
 # Function to fade in
 def fade_in(window, color=(0, 0, 0)):
     fade_surface = pygame.Surface(window.get_size())
@@ -149,7 +132,6 @@ def fade_in(window, color=(0, 0, 0)):
         pygame.display.update()
         pygame.time.delay(10)
 
-
 # Function to fade out
 def fade_out(window, color=(0, 0, 0)):
     fade_surface = pygame.Surface(window.get_size())
@@ -159,7 +141,6 @@ def fade_out(window, color=(0, 0, 0)):
         window.blit(fade_surface, (0, 0))
         pygame.display.update()
         pygame.time.delay(10)
-
 
 # Function to display the death page
 def display_death_page(window, score):
@@ -196,15 +177,27 @@ def display_death_page(window, score):
         window.blit(replay_text, replay_rect.topleft)
         pygame.display.flip()
 
+# Function to draw text with an outline
+def draw_text_with_outline(surface, text, font, text_color, outline_color, x, y):
+    # Render the text
+    text_surface = font.render(text, True, text_color)
+    outline_surface = font.render(text, True, outline_color)
+
+    # Draw the outline by blitting the outline surface slightly offset in each direction
+    surface.blit(outline_surface, (x - 1, y - 1))
+    surface.blit(outline_surface, (x + 1, y - 1))
+    surface.blit(outline_surface, (x - 1, y + 1))
+    surface.blit(outline_surface, (x + 1, y + 1))
+
+    # Draw the actual text on top
+    surface.blit(text_surface, (x, y))
 
 # Lore text
 lore_text = "In the mystical land of Stanford, you are the last guardian of the ancient Tree of Knowledge. Evil trees have been corrupted by dark forces and are marching towards the heart of the campus. Your task is to protect the sacred tree by using your typing skills to defeat the corrupted trees. Type the words associated with each tree to destroy them and save Stanford! Welcome to CARDINAL CONQUEST!"
 
 # Wrap the lore text
 font = pygame.font.Font(None, 36)
-wrapped_lore_text = wrap_text(
-    lore_text, font, window_size[0] - 40
-)  # Adjust width to fit within the window
+wrapped_lore_text = wrap_text(lore_text, font, window_size[0] - 40)  # Adjust width to fit within the window
 
 # Game state variable
 game_state = "lore"
@@ -217,19 +210,24 @@ clock = pygame.time.Clock()
 
 # Main game loop
 frame_count = 0  # Initialize a frame counter
+used_words = set()  # Set to track words currently on screen
+
 while True:
     if game_state == "lore" and not intro_shown:
         pygame.mixer.music.play(-1)  # Start playing the background music
         fade_in(window)
-        display_scrolling_text(
-            window, wrapped_lore_text, font, (255, 255, 255), 1, logo_image
-        )  # Adjust the speed to make it slower
+        display_scrolling_text(window, wrapped_lore_text, font, (255, 255, 255), 1, logo_image)  # Adjust the speed to make it slower
         fade_out(window)
         intro_shown = True
         game_state = "playing"
         trees.clear()
+        used_words.clear()
         for _ in range(5):  # Start with fewer trees
-            create_tree(random.choice(words))
+            new_word = random.choice(words)
+            while new_word in used_words:
+                new_word = random.choice(words)
+            used_words.add(new_word)
+            create_tree(new_word)
         typed_word = ""
         lives = 3
         score = 0
@@ -247,9 +245,8 @@ while True:
                     for tree in trees:
                         if tree["word"] == typed_word:
                             destroy_sound.play()  # Play destruction sound effect
-                            flame_animations.append(
-                                {"position": tree["position"], "frame": 0}
-                            )  # Start flame animation
+                            flame_animations.append({"position": tree["position"], "frame": 0})  # Start flame animation
+                            used_words.remove(tree["word"])
                             trees.remove(tree)
                             score += 1
                             break
@@ -288,16 +285,9 @@ while True:
             )
             tree["position"][0] -= tree["speed"]
 
-            # Draw the word above the tree
+            # Draw the word above the tree with an outline
             font = pygame.font.Font(None, 36)
-            word_text = font.render(tree["word"], True, (255, 255, 255))
-            window.blit(
-                word_text,
-                (
-                    tree["position"][0] - word_text.get_width() / 2,
-                    tree["position"][1] - 50,
-                ),
-            )
+            draw_text_with_outline(window, tree["word"], font, (255, 255, 255), (0, 0, 0), tree["position"][0] - font.size(tree["word"])[0] / 2, tree["position"][1] - 50)
 
             # Check if tree reaches the player
             if (
@@ -305,6 +295,7 @@ while True:
                 < player["position"][0] + student_sprite.get_width() / 2
             ):
                 trees.remove(tree)
+                used_words.remove(tree["word"])
                 lives -= 1
                 hit_sound.play()  # Play hit sound effect
                 if lives == 0:
@@ -344,9 +335,12 @@ while True:
         # Update the display
         pygame.display.flip()
 
-        # Add new trees less frequently
-        if random.randint(1, 200) > 195:
+        # Add new trees more frequently based on score
+        if random.randint(1, 200 - score // 10) > 195:
             new_word = random.choice(words)
+            while new_word in used_words:
+                new_word = random.choice(words)
+            used_words.add(new_word)
             create_tree(new_word)
 
         # Increment the frame counter
@@ -360,8 +354,13 @@ while True:
         fade_out(window)
         game_state = "playing"
         trees.clear()
+        used_words.clear()
         for _ in range(5):  # Start with fewer trees
-            create_tree(random.choice(words))
+            new_word = random.choice(words)
+            while new_word in used_words:
+                new_word = random.choice(words)
+            used_words.add(new_word)
+            create_tree(new_word)
         typed_word = ""
         lives = 3
         score = 0
