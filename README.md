@@ -9,4 +9,4 @@
 3. Run the game from terminal with `python main.py`.
 
 ![Screenshot 1](images/screenshot1.png)
-![Click here to watch the video](gameplay.mov)
+
