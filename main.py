@@ -33,12 +33,21 @@ student_sprite = pygame.transform.scale(student_sprite, (95, 95))  # Scale to ap
 logo_image = pygame.image.load('images/logo.png')
 logo_image = pygame.transform.scale(logo_image, (350, 350))  # Adjust the size as needed
 
+# Load flame animation frames
+flame_frames = []
+N = 2  # Number of flame frames
+for i in range(1, N + 1):  # Assuming frames are named flame1.png, flame2.png, ..., flameN.png
+    flame_image = pygame.image.load(f'images/flame{i}.png')
+    flame_image = pygame.transform.scale(flame_image, (40, 40))  # Scale to appropriate size
+    flame_frames.extend([flame_image] * 5)  # Repeat each frame to make the animation last longer
+
 # Define player and tree attributes
 player = {
     "position": (50, 275)  # Position the player on the left side
 }
 
 trees = []
+flame_animations = []  # List to track active flame animations
 lives = 3  # Start with 3 lives
 score = 0  # Initialize score
 
@@ -194,8 +203,9 @@ while True:
                     # Check if typed word matches any tree word
                     for tree in trees:
                         if tree["word"] == typed_word:
-                            trees.remove(tree)
                             destroy_sound.play()  # Play destruction sound effect
+                            flame_animations.append({"position": tree["position"], "frame": 0})  # Start flame animation
+                            trees.remove(tree)
                             score += 1
                             break
                     typed_word = ""
@@ -229,6 +239,15 @@ while True:
                     end_sound.play()  # Play end sound effect
                     fade_out(window)
                     game_state = "death"
+
+        # Update and draw flame animations
+        for animation in flame_animations[:]:
+            frame = animation["frame"]
+            if frame < len(flame_frames):
+                window.blit(flame_frames[frame], (animation["position"][0] - flame_frames[frame].get_width() / 2, animation["position"][1] - flame_frames[frame].get_height() / 2))
+                animation["frame"] += 1
+            else:
+                flame_animations.remove(animation)  # Remove animation when complete
 
         # Display the typed word
         font = pygame.font.Font(None, 74)
