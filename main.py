@@ -1,6 +1,7 @@
 import sys
 import pygame
 import random
+import math
 
 # Initialize Pygame
 pygame.init()
@@ -38,12 +39,15 @@ flame_frames = []
 N = 2  # Number of flame frames
 for i in range(1, N + 1):  # Assuming frames are named flame1.png, flame2.png, ..., flameN.png
     flame_image = pygame.image.load(f'images/flame{i}.png')
-    flame_image = pygame.transform.scale(flame_image, (40, 40))  # Scale to appropriate size
+    flame_image = pygame.transform.scale(flame_image, (50, 50))  # Scale to appropriate size
     flame_frames.extend([flame_image] * 5)  # Repeat each frame to make the animation last longer
 
 # Define player and tree attributes
 player = {
-    "position": (50, 275)  # Position the player on the left side
+    "position": (50, 275),  # Position the player on the left side
+    "base_position": (50, 275),  # Base position for the oscillation
+    "amplitude": 5,  # Amplitude of the oscillation
+    "frequency": 0.1  # Frequency of the oscillation
 }
 
 trees = []
@@ -178,6 +182,7 @@ intro_shown = False
 clock = pygame.time.Clock()
 
 # Main game loop
+frame_count = 0  # Initialize a frame counter
 while True:
     if game_state == "lore" and not intro_shown:
         pygame.mixer.music.play(-1)  # Start playing the background music
@@ -217,8 +222,12 @@ while True:
         # Fill the window with the background image
         window.blit(background_image, (0, 0))
 
-        # Draw the player
-        window.blit(student_sprite, (player["position"][0] - student_sprite.get_width() / 2, player["position"][1] - student_sprite.get_height() / 2))
+        # Calculate the vertical offset using a sine wave
+        y_offset = player["amplitude"] * math.sin(player["frequency"] * frame_count)
+
+        # Draw the player with the vertical offset
+        player_position_with_offset = (player["position"][0], player["base_position"][1] + y_offset)
+        window.blit(student_sprite, (player_position_with_offset[0] - student_sprite.get_width() / 2, player_position_with_offset[1] - student_sprite.get_height() / 2))
 
         # Draw and move the trees
         for tree in trees:
@@ -271,6 +280,9 @@ while True:
         if random.randint(1, 200) > 195:
             new_word = random.choice(words)
             create_tree(new_word)
+
+        # Increment the frame counter
+        frame_count += 1
 
         # Control the frame rate
         clock.tick(30)  # Set the frame rate to 30 FPS
