@@ -1,5 +1,5 @@
-import pygame
 import sys
+import pygame
 import random
 
 # Initialize Pygame
@@ -138,10 +138,11 @@ def fade_out(window, color=(0, 0, 0)):
         pygame.time.delay(10)
 
 # Function to display the death page
-def display_death_page(window):
+def display_death_page(window, score):
     fade_in(window)
     font = pygame.font.Font(None, 74)
     death_text = font.render("You Died", True, (255, 0, 0))
+    score_text = font.render(f"Score: {score}", True, (255, 255, 255))
     replay_text = font.render("Replay Game", True, (255, 255, 255))
     replay_rect = replay_text.get_rect(center=(window_size[0] // 2, window_size[1] // 2 + 100))
     
@@ -155,7 +156,8 @@ def display_death_page(window):
                     return  # Exit the death screen to restart the game
         
         window.fill((0, 0, 0))
-        window.blit(death_text, (window_size[0] // 2 - death_text.get_width() // 2, window_size[1] // 2 - death_text.get_height() // 2))
+        window.blit(death_text, (window_size[0] // 2 - death_text.get_width() // 2, window_size[1] // 2 - death_text.get_height() - 75 // 2))
+        window.blit(score_text, (window_size[0] // 2 - score_text.get_width() // 2, window_size[1] // 2))
         window.blit(replay_text, replay_rect.topleft)
         pygame.display.flip()
 
@@ -274,7 +276,7 @@ while True:
         clock.tick(30)  # Set the frame rate to 30 FPS
     
     elif game_state == "death":
-        display_death_page(window)
+        display_death_page(window, score)
         fade_out(window)
         game_state = "playing"
         trees.clear()
@@ -284,4 +286,3 @@ while True:
         lives = 3
         score = 0
         pygame.mixer.music.play(-1)  # Start playing the background music
-
