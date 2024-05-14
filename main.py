@@ -20,7 +20,13 @@ player = {
 trees = []
 
 # List of words for trees
-words = ["tree", "bark", "leaf", "wood"]
+words = [
+    "Stanford", "Cardinal", "Tree", "Hoover", "Quad", "Library", "Dinkelspiel", "Memorial", 
+    "Oval", "Cantor", "Fountain", "Engineering", "Humanities", "Economics", "Silicon", 
+    "Valley", "Palo", "Alto", "Research", "Innovation", "Campus", "Lecture", "Study", 
+    "Professor", "Student", "Graduation", "Ceremony", "Bookstore", "Athletics", "Championship", 
+    "Scholar", "Experiment", "Laboratory", "Computer", "Science", "Mathematics"]
+
 
 # Function to create a new tree
 def create_tree(word):
