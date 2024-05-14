@@ -10,19 +10,28 @@ window_size = (800, 600)
 window = pygame.display.set_mode(window_size)
 pygame.display.set_caption("Typing Game")
 
-# Load and play background music
-pygame.mixer.music.load('background.mp3')
-pygame.mixer.music.play(-1)  # -1 means the music will loop indefinitely
+# Load and set up sounds
+pygame.mixer.init()
+hit_sound = pygame.mixer.Sound('sound/hit.mp3')
+end_sound = pygame.mixer.Sound('sound/end.mp3')
+destroy_sound = pygame.mixer.Sound('sound/destroy.wav')  # Load the destruction sound
+
+# Load music
+pygame.mixer.music.load('sound/background.mp3')
 
 # Load sprites
-background_image = pygame.image.load('background.png')
+background_image = pygame.image.load('images/background.png')
 background_image = pygame.transform.scale(background_image, window_size)  # Scale to fit window size
-tree_sprite = pygame.image.load('tree.png')
-tree_sprite = pygame.transform.scale(tree_sprite, (70, 70))  # Scale to appropriate size
-heart_sprite = pygame.image.load('heart.png')
+tree_sprite = pygame.image.load('images/tree.png')
+tree_sprite = pygame.transform.scale(tree_sprite, (60, 60))  # Scale to appropriate size
+heart_sprite = pygame.image.load('images/heart.png')
 heart_sprite = pygame.transform.scale(heart_sprite, (30, 30))  # Scale to appropriate size
-student_sprite = pygame.image.load('student.png')
+student_sprite = pygame.image.load('images/student.png')
 student_sprite = pygame.transform.scale(student_sprite, (95, 95))  # Scale to appropriate size
+
+# Load logo image
+logo_image = pygame.image.load('images/logo.png')
+logo_image = pygame.transform.scale(logo_image, (350, 350))  # Adjust the size as needed
 
 # Define player and tree attributes
 player = {
@@ -31,6 +40,7 @@ player = {
 
 trees = []
 lives = 3  # Start with 3 lives
+score = 0  # Initialize score
 
 # List of words for trees
 words = [
@@ -68,8 +78,8 @@ def wrap_text(text, font, max_width):
     lines.append(current_line)
     return lines
 
-# Function to display scrolling text
-def display_scrolling_text(window, lines, font, color, speed):
+# Function to display scrolling text with moving logo
+def display_scrolling_text(window, lines, font, color, speed, logo):
     y = window_size[1]
     line_height = font.get_height()
     surface_height = line_height * len(lines) * 2  # Increase surface height for more spacing between lines
@@ -89,108 +99,169 @@ def display_scrolling_text(window, lines, font, color, speed):
         
         window.fill((0, 0, 0))
         window.blit(scroll_surface, (0, y))
+        
+        # Calculate logo position
+        logo_y_position = y + surface_height + 20
+        window.blit(logo, (window_size[0] // 2 - logo.get_width() // 2, logo_y_position))
+
         pygame.display.flip()
         y -= speed
         pygame.time.delay(20)  # Decrease the delay to speed up the scrolling
 
+# Function to fade in
+def fade_in(window, color=(0, 0, 0)):
+    fade_surface = pygame.Surface(window.get_size())
+    fade_surface.fill(color)
+    for alpha in range(0, 255, 5):
+        fade_surface.set_alpha(alpha)
+        window.blit(fade_surface, (0, 0))
+        pygame.display.update()
+        pygame.time.delay(10)
+
+# Function to fade out
+def fade_out(window, color=(0, 0, 0)):
+    fade_surface = pygame.Surface(window.get_size())
+    fade_surface.fill(color)
+    for alpha in range(255, -1, -5):
+        fade_surface.set_alpha(alpha)
+        window.blit(fade_surface, (0, 0))
+        pygame.display.update()
+        pygame.time.delay(10)
+
 # Function to display the death page
 def display_death_page(window):
+    fade_in(window)
     font = pygame.font.Font(None, 74)
     death_text = font.render("You Died", True, (255, 0, 0))
+    replay_text = font.render("Replay Game", True, (255, 255, 255))
+    replay_rect = replay_text.get_rect(center=(window_size[0] // 2, window_size[1] // 2 + 100))
+    
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if replay_rect.collidepoint(event.pos):
+                    return  # Exit the death screen to restart the game
         
         window.fill((0, 0, 0))
         window.blit(death_text, (window_size[0] // 2 - death_text.get_width() // 2, window_size[1] // 2 - death_text.get_height() // 2))
+        window.blit(replay_text, replay_rect.topleft)
         pygame.display.flip()
 
 # Lore text
-lore_text = "In the mystical land of Stanford, you are the last guardian of the ancient Tree of Knowledge. Evil trees have been corrupted by dark forces and are marching towards the heart of the campus. Your task is to protect the sacred tree by using your typing skills to defeat the corrupted trees. Type the words associated with each tree to destroy them and save Stanford!"
+lore_text = "In the mystical land of Stanford, you are the last guardian of the ancient Tree of Knowledge. Evil trees have been corrupted by dark forces and are marching towards the heart of the campus. Your task is to protect the sacred tree by using your typing skills to defeat the corrupted trees. Type the words associated with each tree to destroy them and save Stanford! Welcome to CARDINAL CONQUEST!"
 
 # Wrap the lore text
 font = pygame.font.Font(None, 36)
 wrapped_lore_text = wrap_text(lore_text, font, window_size[0] - 40)  # Adjust width to fit within the window
 
-# Display the lore scene before starting the game
-display_scrolling_text(window, wrapped_lore_text, font, (255, 255, 255), 3)  # Adjust the speed to make it faster
+# Game state variable
+game_state = "lore"
 
-# Create initial trees
-for _ in range(5):  # Start with fewer trees
-    create_tree(random.choice(words))
-
-typed_word = ""
-score = 0
+# Intro shown flag
+intro_shown = False
 
 # Set up the clock to control the frame rate
 clock = pygame.time.Clock()
 
 # Main game loop
 while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_BACKSPACE:
-                typed_word = typed_word[:-1]
-            elif event.key == pygame.K_RETURN:
-                # Check if typed word matches any tree word
-                for tree in trees:
-                    if tree["word"] == typed_word:
-                        trees.remove(tree)
-                        score += 1
-                        break
-                typed_word = ""
-            else:
-                typed_word += event.unicode
+    if game_state == "lore" and not intro_shown:
+        pygame.mixer.music.play(-1)  # Start playing the background music
+        fade_in(window)
+        display_scrolling_text(window, wrapped_lore_text, font, (255, 255, 255), 1, logo_image)  # Adjust the speed to make it slower
+        fade_out(window)
+        intro_shown = True
+        game_state = "playing"
+        trees.clear()
+        for _ in range(5):  # Start with fewer trees
+            create_tree(random.choice(words))
+        typed_word = ""
+        lives = 3
+        score = 0
+    
+    elif game_state == "playing":
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_BACKSPACE:
+                    typed_word = typed_word[:-1]
+                elif event.key == pygame.K_RETURN:
+                    # Check if typed word matches any tree word
+                    for tree in trees:
+                        if tree["word"] == typed_word:
+                            trees.remove(tree)
+                            destroy_sound.play()  # Play destruction sound effect
+                            score += 1
+                            break
+                    typed_word = ""
+                else:
+                    typed_word += event.unicode
 
-    # Fill the window with the background image
-    window.blit(background_image, (0, 0))
+        # Fill the window with the background image
+        window.blit(background_image, (0, 0))
 
-    # Draw the player
-    window.blit(student_sprite, (player["position"][0] - student_sprite.get_width() / 2, player["position"][1] - student_sprite.get_height() / 2))
+        # Draw the player
+        window.blit(student_sprite, (player["position"][0] - student_sprite.get_width() / 2, player["position"][1] - student_sprite.get_height() / 2))
 
-    # Draw and move the trees
-    for tree in trees:
-        # Draw the tree sprite
-        window.blit(tree_sprite, (tree["position"][0] - tree_sprite.get_width() / 2, tree["position"][1] - tree_sprite.get_height() / 2))
-        tree["position"][0] -= tree["speed"]
+        # Draw and move the trees
+        for tree in trees:
+            # Draw the tree sprite
+            window.blit(tree_sprite, (tree["position"][0] - tree_sprite.get_width() / 2, tree["position"][1] - tree_sprite.get_height() / 2))
+            tree["position"][0] -= tree["speed"]
 
-        # Draw the word above the tree
-        font = pygame.font.Font(None, 36)
-        word_text = font.render(tree["word"], True, (255, 255, 255))
-        window.blit(word_text, (tree["position"][0] - word_text.get_width() / 2, tree["position"][1] - 50))
+            # Draw the word above the tree
+            font = pygame.font.Font(None, 36)
+            word_text = font.render(tree["word"], True, (255, 255, 255))
+            window.blit(word_text, (tree["position"][0] - word_text.get_width() / 2, tree["position"][1] - 50))
 
-        # Check if tree reaches the player
-        if tree["position"][0] < player["position"][0] + student_sprite.get_width() / 2:
-            trees.remove(tree)
-            lives -= 1
-            if lives == 0:
-                display_death_page(window)
+            # Check if tree reaches the player
+            if tree["position"][0] < player["position"][0] + student_sprite.get_width() / 2:
+                trees.remove(tree)
+                lives -= 1
+                hit_sound.play()  # Play hit sound effect
+                if lives == 0:
+                    pygame.mixer.music.stop()  # Stop background music
+                    end_sound.play()  # Play end sound effect
+                    fade_out(window)
+                    game_state = "death"
 
-    # Display the typed word
-    font = pygame.font.Font(None, 74)
-    text = font.render(typed_word, True, (255, 255, 255))
-    window.blit(text, (10, 10))
+        # Display the typed word
+        font = pygame.font.Font(None, 74)
+        text = font.render(typed_word, True, (255, 255, 255))
+        window.blit(text, (10, 10))
 
-    # Display the score
-    score_text = font.render(f"Score: {score}", True, (255, 255, 255))
-    window.blit(score_text, (window_size[0] - score_text.get_width() - 10, 10))
+        # Display the score
+        score_text = font.render(f"Score: {score}", True, (255, 255, 255))
+        window.blit(score_text, (window_size[0] - score_text.get_width() - 10, 10))
 
-    # Display the lives
-    for i in range(lives):
-        window.blit(heart_sprite, (10 + i * 40, 50))
+        # Display the lives
+        for i in range(lives):
+            window.blit(heart_sprite, (10 + i * 40, 50))
 
-    # Update the display
-    pygame.display.flip()
+        # Update the display
+        pygame.display.flip()
 
-    # Add new trees less frequently
-    if random.randint(1, 200) > 195:
-        new_word = random.choice(words)
-        create_tree(new_word)
+        # Add new trees less frequently
+        if random.randint(1, 200) > 195:
+            new_word = random.choice(words)
+            create_tree(new_word)
 
-    # Control the frame rate
-    clock.tick(30)  # Set the frame rate to 30 FPS
+        # Control the frame rate
+        clock.tick(30)  # Set the frame rate to 30 FPS
+    
+    elif game_state == "death":
+        display_death_page(window)
+        fade_out(window)
+        game_state = "playing"
+        trees.clear()
+        for _ in range(5):  # Start with fewer trees
+            create_tree(random.choice(words))
+        typed_word = ""
+        lives = 3
+        score = 0
+        pygame.mixer.music.play(-1)  # Start playing the background music
