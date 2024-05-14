@@ -10,3 +10,5 @@
 
 ![Screenshot 1](images/screenshot1.png)
 
+https://github.com/abhidesai12/Cardinal-Conquest/assets/140012466/39a78610-cba7-4ef2-a364-f70d57ef2aaf
+
