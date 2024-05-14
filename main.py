@@ -12,7 +12,7 @@ pygame.display.set_caption("Typing Game")
 
 # Define player and tree attributes
 player = {
-    "position": (400, 500),
+    "position": (50, 300),  # Position the player on the left side
     "color": (255, 255, 255),
     "radius": 30
 }
@@ -28,7 +28,7 @@ def create_tree(word):
         "position": [random.randint(800, 1600), random.randint(50, 550)],
         "color": (0, 255, 0),
         "radius": 20,
-        "speed": random.randint(1, 3),
+        "speed": random.uniform(0.5, 1.5),  # Reduced speed for trees
         "word": word
     }
     trees.append(tree)
@@ -38,6 +38,10 @@ for word in words:
     create_tree(word)
 
 typed_word = ""
+score = 0
+
+# Set up the clock to control the frame rate
+clock = pygame.time.Clock()
 
 # Main game loop
 while True:
@@ -53,6 +57,7 @@ while True:
                 for tree in trees:
                     if tree["word"] == typed_word:
                         trees.remove(tree)
+                        score += 1
                         break
                 typed_word = ""
             else:
@@ -69,8 +74,13 @@ while True:
         pygame.draw.circle(window, tree["color"], tree["position"], tree["radius"])
         tree["position"][0] -= tree["speed"]
 
+        # Draw the word above the tree
+        font = pygame.font.Font(None, 36)
+        word_text = font.render(tree["word"], True, (255, 255, 255))
+        window.blit(word_text, (tree["position"][0] - word_text.get_width() / 2, tree["position"][1] - 30))
+
         # Check if tree reaches the player
-        if tree["position"][0] < player["position"][0]:
+        if tree["position"][0] < player["position"][0] + player["radius"]:
             print("Game Over")
             pygame.quit()
             sys.exit()
@@ -80,6 +90,10 @@ while True:
     text = font.render(typed_word, True, (255, 255, 255))
     window.blit(text, (10, 10))
 
+    # Display the score
+    score_text = font.render(f"Score: {score}", True, (255, 255, 255))
+    window.blit(score_text, (window_size[0] - score_text.get_width() - 10, 10))
+
     # Update the display
     pygame.display.flip()
 
@@ -87,3 +101,6 @@ while True:
     if random.randint(1, 100) > 98:
         new_word = random.choice(words)
         create_tree(new_word)
+
+    # Control the frame rate
+    clock.tick(30)  # Set the frame rate to 30 FPS
