@@ -28,6 +28,21 @@ end_sound = pygame.mixer.Sound("sound/end.mp3")
 destroy_sound = pygame.mixer.Sound("sound/destroy.wav")
 
 
+def draw_text_with_outline(surface, text, font, text_color, outline_color, x, y):
+    # Render the text
+    text_surface = font.render(text, True, text_color)
+    outline_surface = font.render(text, True, outline_color)
+
+    # Draw the outline by blitting the outline surface slightly offset in each direction
+    surface.blit(outline_surface, (x - 1, y - 1))
+    surface.blit(outline_surface, (x + 1, y - 1))
+    surface.blit(outline_surface, (x - 1, y + 1))
+    surface.blit(outline_surface, (x + 1, y + 1))
+
+    # Draw the actual text on top
+    surface.blit(text_surface, (x, y))
+
+
 # Load flame animation frames
 flame_frames = []
 N = 2  # Number of flame frames
@@ -190,14 +205,7 @@ def run_level1():
             )
             tree["position"][0] -= tree["speed"]
 
-            word_text = font.render(tree["word"], True, (255, 255, 255))
-            window.blit(
-                word_text,
-                (
-                    tree["position"][0] - word_text.get_width() / 2,
-                    tree["position"][1] - 50,
-                ),
-            )
+            draw_text_with_outline(window, tree["word"], font, (255, 255, 255), (0, 0, 0), tree["position"][0] - font.size(tree["word"])[0] / 2, tree["position"][1] - 50)
 
             if tree["position"][0] < player["position"][0] + student_sprite.get_width() / 2:
                 level_1_state["trees"].remove(tree)
