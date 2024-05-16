@@ -76,7 +76,7 @@ def create_tree(word):
     tree = {
         "position": [random.randint(800, 1600), random.randint(50, 550)],
         "radius": 20,
-        "speed": random.uniform(0.5, 1.5),
+        "speed": random.uniform(0.5, 1.5) + level_1_state["score"] * 0.01,
         "word": word,
     }
     level_1_state["trees"].append(tree)
