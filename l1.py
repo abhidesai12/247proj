@@ -247,3 +247,4 @@ def run_level1():
 
         level_1_state["frame_count"] += 1
         clock.tick(30)
+
