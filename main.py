@@ -29,6 +29,8 @@ logo_image = pygame.transform.scale(logo_image, (350, 350))
 from intro import run_intro
 from levels.level1.l1 import run_level1
 from levels.level2.l2 import run_level2
+from levels.level3.l3 import run_level3
+
 
 def main():
     while True:
@@ -39,13 +41,14 @@ def main():
             game_state["current_level"] = "level_1"
         elif current_level == "level_1":
             run_level1()
+        elif current_level["current_level"] == "level_2":
+            run_level2()
         elif game_state["current_level"] == "level_3":
             run_level3()
-        elif current_level == "level_2":
-            run_level2()
 
         if game_state["current_level"] not in game_state["level_sequence"]:
             break  # End the game after the last level
+
 
 if __name__ == "__main__":
     main()

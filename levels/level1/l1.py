@@ -111,7 +111,7 @@ def display_death_page(window, score):
     font = pygame.font.Font(None, 74)
     death_text = font.render("You Died", True, (255, 0, 0))
     score_text = font.render(f"Score: {score}", True, (255, 255, 255))
-    replay_text = font.render("Go To L3", True, (255, 255, 255))
+    replay_text = font.render("Go To L2", True, (255, 255, 255))
     replay_rect = replay_text.get_rect(center=(window_size[0] // 2, window_size[1] // 2 + 100))
 
     while True:
@@ -149,10 +149,6 @@ def run_level1():
     level_1_state["show_death_screen"] = False
 
     while True:
-        print("in while loop")
-        from pprint import pprint
-
-        pprint(level_1_state)
         if level_1_state["exit"] is True:
             print("exiting")
             game_state["current_level"] = "level_3"
@@ -179,7 +175,7 @@ def run_level1():
         if level_1_state["show_death_screen"]:
             display_death_page(window, level_1_state["score"])
             fade_out(window)
-            game_state["current_level"] = "level_1"
+            game_state["current_level"] = "level_2"
             level_1_state["trees"].clear()
             for _ in range(5):
                 create_tree(random.choice(words))
