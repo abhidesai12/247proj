@@ -253,3 +253,5 @@ def run_level1():
 
         level_1_state["frame_count"] += 1
         clock.tick(30)
+    print("exiting level 3")
+    print(game_state["current_level"])

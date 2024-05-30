@@ -7,6 +7,5 @@ window = pygame.display.set_mode(window_size)
 game_state = {
     "window_size": window_size,
     "current_level": "intro",  # Start with the intro
-    "level_sequence": ["intro", "level_1", "level_2"],  # Define the sequence of levels
-    "current_level_index": 0  # Index to track the current level in the sequence
+    "current_level_index": 0,  # Index to track the current level in the sequence
 }
