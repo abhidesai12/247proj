@@ -7,6 +7,11 @@ pygame.init()
 pygame.display.set_caption("Cardinal Conquest")
 pygame.mixer.init()
 
+
+from levels.level1.l1 import run_level1
+from levels.level3.l3 import run_level3
+from intro import run_intro
+
 # Load music
 background_music_path = "sound/background.mp3"
 if os.path.exists(background_music_path):
@@ -34,6 +39,8 @@ def main():
             game_state["current_level"] = "level_1"
         elif current_level == "level_1":
             run_level1()
+        elif game_state["current_level"] == "level_3":
+            run_level3()
         elif current_level == "level_2":
             run_level2()
 

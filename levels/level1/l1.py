@@ -3,11 +3,14 @@ import pygame
 import random
 import math
 import json
+
 from g import window_size, window, game_state
+
 
 # Load words
 with open("./assets/words.json", "r") as file:
     words = json.load(file)
+
 
 # Load sprites
 background_image = pygame.image.load("images/background.png")
@@ -24,14 +27,21 @@ hit_sound = pygame.mixer.Sound("sound/hit.mp3")
 end_sound = pygame.mixer.Sound("sound/end.mp3")
 destroy_sound = pygame.mixer.Sound("sound/destroy.wav")
 
+
 def draw_text_with_outline(surface, text, font, text_color, outline_color, x, y):
+    # Render the text
     text_surface = font.render(text, True, text_color)
     outline_surface = font.render(text, True, outline_color)
+
+    # Draw the outline by blitting the outline surface slightly offset in each direction
     surface.blit(outline_surface, (x - 1, y - 1))
     surface.blit(outline_surface, (x + 1, y - 1))
     surface.blit(outline_surface, (x - 1, y + 1))
     surface.blit(outline_surface, (x + 1, y + 1))
+
+    # Draw the actual text on top
     surface.blit(text_surface, (x, y))
+
 
 # Load flame animation frames
 flame_frames = []
@@ -41,6 +51,7 @@ for i in range(1, N + 1):
     flame_image = pygame.transform.scale(flame_image, (50, 50))
     flame_frames.extend([flame_image] * 5)
 
+
 # Level 1 state
 level_1_state = {
     "trees": [],
@@ -49,6 +60,7 @@ level_1_state = {
     "score": 0,
     "typed_word": "",
     "frame_count": 0,
+    "exit": False,
 }
 
 # Define player attributes
@@ -58,6 +70,7 @@ player = {
     "amplitude": 5,
     "frequency": 0.1,
 }
+
 
 # Function to create a new tree
 def create_tree(word):
@@ -69,6 +82,7 @@ def create_tree(word):
     }
     level_1_state["trees"].append(tree)
 
+
 # Function to fade in
 def fade_in(window, color=(0, 0, 0)):
     fade_surface = pygame.Surface(window.get_size())
@@ -78,6 +92,7 @@ def fade_in(window, color=(0, 0, 0)):
         window.blit(fade_surface, (0, 0))
         pygame.display.update()
         pygame.time.delay(10)
+
 
 # Function to fade out
 def fade_out(window, color=(0, 0, 0)):
@@ -89,13 +104,14 @@ def fade_out(window, color=(0, 0, 0)):
         pygame.display.update()
         pygame.time.delay(10)
 
+
 # Function to display the death page
 def display_death_page(window, score):
     fade_in(window)
     font = pygame.font.Font(None, 74)
     death_text = font.render("You Died", True, (255, 0, 0))
     score_text = font.render(f"Score: {score}", True, (255, 255, 255))
-    replay_text = font.render("Replay Game", True, (255, 255, 255))
+    replay_text = font.render("Go To L3", True, (255, 255, 255))
     replay_rect = replay_text.get_rect(center=(window_size[0] // 2, window_size[1] // 2 + 100))
 
     while True:
@@ -105,7 +121,8 @@ def display_death_page(window, score):
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if replay_rect.collidepoint(event.pos):
-                    return  # Exit the death screen to restart the game
+                    level_1_state["exit"] = True
+                    return
 
         window.fill((0, 0, 0))
         window.blit(
@@ -122,6 +139,7 @@ def display_death_page(window, score):
         window.blit(replay_text, replay_rect.topleft)
         pygame.display.flip()
 
+
 # Function to run level 1
 def run_level1():
     clock = pygame.time.Clock()
@@ -131,6 +149,14 @@ def run_level1():
     level_1_state["show_death_screen"] = False
 
     while True:
+        print("in while loop")
+        from pprint import pprint
+
+        pprint(level_1_state)
+        if level_1_state["exit"] is True:
+            print("exiting")
+            game_state["current_level"] = "level_3"
+            break
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -231,8 +257,3 @@ def run_level1():
 
         level_1_state["frame_count"] += 1
         clock.tick(30)
-
-        # Check if score reaches 10 to move to Level 2
-        if level_1_state["score"] >= 10:
-            game_state["current_level"] = "level_2"
-            return
