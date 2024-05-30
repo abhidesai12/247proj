@@ -3,14 +3,11 @@ import pygame
 import random
 import math
 import json
-
 from g import window_size, window, game_state
-
 
 # Load words
 with open("./assets/words.json", "r") as file:
     words = json.load(file)
-
 
 # Load sprites
 background_image = pygame.image.load("images/background.png")
@@ -27,21 +24,14 @@ hit_sound = pygame.mixer.Sound("sound/hit.mp3")
 end_sound = pygame.mixer.Sound("sound/end.mp3")
 destroy_sound = pygame.mixer.Sound("sound/destroy.wav")
 
-
 def draw_text_with_outline(surface, text, font, text_color, outline_color, x, y):
-    # Render the text
     text_surface = font.render(text, True, text_color)
     outline_surface = font.render(text, True, outline_color)
-
-    # Draw the outline by blitting the outline surface slightly offset in each direction
     surface.blit(outline_surface, (x - 1, y - 1))
     surface.blit(outline_surface, (x + 1, y - 1))
     surface.blit(outline_surface, (x - 1, y + 1))
     surface.blit(outline_surface, (x + 1, y + 1))
-
-    # Draw the actual text on top
     surface.blit(text_surface, (x, y))
-
 
 # Load flame animation frames
 flame_frames = []
@@ -50,7 +40,6 @@ for i in range(1, N + 1):
     flame_image = pygame.image.load(f"images/flame{i}.png")
     flame_image = pygame.transform.scale(flame_image, (50, 50))
     flame_frames.extend([flame_image] * 5)
-
 
 # Level 1 state
 level_1_state = {
@@ -70,7 +59,6 @@ player = {
     "frequency": 0.1,
 }
 
-
 # Function to create a new tree
 def create_tree(word):
     tree = {
@@ -80,7 +68,6 @@ def create_tree(word):
         "word": word,
     }
     level_1_state["trees"].append(tree)
-
 
 # Function to fade in
 def fade_in(window, color=(0, 0, 0)):
@@ -92,7 +79,6 @@ def fade_in(window, color=(0, 0, 0)):
         pygame.display.update()
         pygame.time.delay(10)
 
-
 # Function to fade out
 def fade_out(window, color=(0, 0, 0)):
     fade_surface = pygame.Surface(window.get_size())
@@ -102,7 +88,6 @@ def fade_out(window, color=(0, 0, 0)):
         window.blit(fade_surface, (0, 0))
         pygame.display.update()
         pygame.time.delay(10)
-
 
 # Function to display the death page
 def display_death_page(window, score):
@@ -136,7 +121,6 @@ def display_death_page(window, score):
         )
         window.blit(replay_text, replay_rect.topleft)
         pygame.display.flip()
-
 
 # Function to run level 1
 def run_level1():
@@ -248,3 +232,7 @@ def run_level1():
         level_1_state["frame_count"] += 1
         clock.tick(30)
 
+        # Check if score reaches 10 to move to Level 2
+        if level_1_state["score"] >= 10:
+            game_state["current_level"] = "level_2"
+            return
