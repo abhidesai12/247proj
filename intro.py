@@ -2,7 +2,7 @@ import sys
 import pygame
 
 from g import window_size, window, game_state
-from l1 import level_1_state
+from levels.level1.l1 import level_1_state
 
 
 # Load logo image
