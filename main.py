@@ -9,9 +9,9 @@ pygame.mixer.init()
 
 
 # after inits are done, import the rest of the levels
-from l1 import run_level1
+from levels.level1.l1 import run_level1
+from levels.level3.l3 import run_level3
 from intro import run_intro
-
 
 # Load music
 pygame.mixer.music.load("sound/background.mp3")
@@ -35,6 +35,8 @@ def main():
             run_intro()
         elif game_state["current_level"] == "level_1":
             run_level1()
+        elif game_state["current_level"] == "level_3":
+            run_level3()
 
 
 if __name__ == "__main__":
