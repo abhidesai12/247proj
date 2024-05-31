@@ -60,7 +60,6 @@ level_1_state = {
     "score": 0,
     "typed_word": "",
     "frame_count": 0,
-    "exit": False,
 }
 
 # Define player attributes
@@ -111,7 +110,7 @@ def display_death_page(window, score):
     font = pygame.font.Font(None, 74)
     death_text = font.render("You Died", True, (255, 0, 0))
     score_text = font.render(f"Score: {score}", True, (255, 255, 255))
-    replay_text = font.render("Go To L2", True, (255, 255, 255))
+    replay_text = font.render("Replay Game", True, (255, 255, 255))
     replay_rect = replay_text.get_rect(center=(window_size[0] // 2, window_size[1] // 2 + 100))
 
     while True:
@@ -121,8 +120,7 @@ def display_death_page(window, score):
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if replay_rect.collidepoint(event.pos):
-                    level_1_state["exit"] = True
-                    return
+                    return  # Exit the death screen to restart the game
 
         window.fill((0, 0, 0))
         window.blit(
@@ -149,10 +147,6 @@ def run_level1():
     level_1_state["show_death_screen"] = False
 
     while True:
-        if level_1_state["exit"] is True:
-            print("exiting")
-            game_state["current_level"] = "level_3"
-            break
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -167,6 +161,9 @@ def run_level1():
                             level_1_state["flame_animations"].append({"position": tree["position"], "frame": 0})
                             level_1_state["trees"].remove(tree)
                             level_1_state["score"] += 1
+                            if level_1_state["score"] >= 10:  # Check if 10 trees have been killed
+                                game_state["current_level"] = "level_2"
+                                return
                             break
                     level_1_state["typed_word"] = ""
                 else:
@@ -175,7 +172,7 @@ def run_level1():
         if level_1_state["show_death_screen"]:
             display_death_page(window, level_1_state["score"])
             fade_out(window)
-            game_state["current_level"] = "level_2"
+            game_state["current_level"] = "level_1"
             level_1_state["trees"].clear()
             for _ in range(5):
                 create_tree(random.choice(words))
@@ -253,5 +250,3 @@ def run_level1():
 
         level_1_state["frame_count"] += 1
         clock.tick(30)
-    print("exiting level 3")
-    print(game_state["current_level"])

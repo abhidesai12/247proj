@@ -7,11 +7,6 @@ pygame.init()
 pygame.display.set_caption("Cardinal Conquest")
 pygame.mixer.init()
 
-
-from levels.level1.l1 import run_level1
-from levels.level3.l3 import run_level3
-from intro import run_intro
-
 # Load music
 background_music_path = "sound/background.mp3"
 if os.path.exists(background_music_path):
@@ -22,8 +17,12 @@ else:
     print(f"Error: {background_music_path} not found.")
 
 # Load logo image
-logo_image = pygame.image.load("images/logo.png")
-logo_image = pygame.transform.scale(logo_image, (350, 350))
+logo_image_path = "images/logo.png"
+if os.path.exists(logo_image_path):
+    logo_image = pygame.image.load(logo_image_path)
+    logo_image = pygame.transform.scale(logo_image, (350, 350))
+else:
+    print(f"Error: {logo_image_path} not found.")
 
 # Import levels
 from intro import run_intro
@@ -31,13 +30,8 @@ from levels.level1.l1 import run_level1
 from levels.level2.l2 import run_level2
 from levels.level3.l3 import run_level3
 
-
 def main():
     while True:
-        import json
-
-        print(json.dumps(game_state, indent=4))
-
         if game_state["current_level"] == "intro":
             run_intro()
             game_state["current_level"] = "level_1"
@@ -50,7 +44,6 @@ def main():
         else:
             print("Invalid level")
             break
-
 
 if __name__ == "__main__":
     main()
