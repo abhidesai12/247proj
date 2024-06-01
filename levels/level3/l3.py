@@ -24,6 +24,25 @@ def fade_out(window, color=(0, 0, 0)):
         pygame.display.update()
         pygame.time.delay(10)
 
+def show_win_screen(screen):
+    fade_in(screen)
+    font = pygame.font.Font(None, 74)
+    win_text = font.render("Congrats you won!", True, (0, 255, 0))
+    exit_rect = exit_text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2 + 100))
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if exit_rect.collidepoint(event.pos):
+                    return  # Exit the win screen
+
+        screen.fill((0, 0, 0))
+        screen.blit(win_text, (screen.get_width() // 2 - win_text.get_width() // 2, screen.get_height() // 2 - win_text.get_height() // 2))
+        pygame.display.flip()
+
 def run_level3():
     SCREEN_WIDTH = window_size[0]
     SCREEN_HEIGHT = window_size[1]
@@ -50,42 +69,42 @@ def run_level3():
     enemies = [
         Enemy(
             [(100, 100), (100, 200), (200, 200), (200, 100)],
-            vel=9,
+            vel=4,
             color=(255, 0, 0),
             field_x=FIELD_X,
             field_y=FIELD_Y,
         ),
         Enemy(
             [(150, 150), (150, 300), (300, 300), (300, 150)],
-            vel=12,
+            vel=6,
             color=(0, 255, 0),
             field_x=FIELD_X,
             field_y=FIELD_Y,
         ),
         Enemy(
             [(200, 200), (200, 400), (400, 400), (400, 200)],
-            vel=15,
+            vel=8,
             color=(0, 0, 255),
             field_x=FIELD_X,
             field_y=FIELD_Y,
         ),
         Enemy(
             [(250, 240), (250, 490), (500, 490), (500, 240)],
-            vel=18,
+            vel=9,
             color=(255, 255, 0),
             field_x=FIELD_X,
             field_y=FIELD_Y,
         ),
         Enemy(
             [(300, 100), (300, 400)],
-            vel=6,
+            vel=3,
             color=(255, 0, 255),
             field_x=FIELD_X,
             field_y=FIELD_Y,
         ),
         Enemy(
             [(400, 100), (400, 400)],
-            vel=6,
+            vel=3,
             color=(0, 255, 255),
             field_x=FIELD_X,
             field_y=FIELD_Y,
@@ -119,7 +138,9 @@ def run_level3():
                 return
 
         if player.draw(screen).collidelist([finish_zone.draw(screen)]) != -1:
-            print("Finished")
+            show_win_screen(screen)
+            game_state["current_level"] = "intro"
+            return
 
     def draw():
         screen.fill((255, 255, 255))
