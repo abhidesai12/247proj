@@ -32,14 +32,15 @@ from levels.level3.l3 import run_level3
 
 def main():
     while True:
-        if game_state["current_level"] == "intro":
+        current_level = game_state.get("current_level")
+        if current_level == "intro":
             run_intro()
             game_state["current_level"] = "level_1"
-        elif game_state["current_level"] == "level_1":
+        elif current_level == "level_1":
             run_level1()
-        elif game_state["current_level"] == "level_2":
+        elif current_level == "level_2":
             run_level2()
-        elif game_state["current_level"] == "level_3":
+        elif current_level == "level_3":
             run_level3()
         else:
             print("Invalid level")

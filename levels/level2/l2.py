@@ -47,6 +47,8 @@ class Game:
         self.walls = pg.sprite.Group()
         self.mobs = pg.sprite.Group()
         self.bullets = pg.sprite.Group()
+        self.player = Player(self, 0, 0)  # Instantiate the player
+        self.player.zombies_killed = 0  # Reset zombies killed count
         for row, tiles in enumerate(self.map.map_data):
             for col, tile in enumerate(tiles):
                 self.map_row = row
@@ -103,7 +105,7 @@ class Game:
             self.destroy_sound.play()  # Play destroy sound
             self.player.zombies_killed += 1  # Increase kill count
 
-            # Check if 10 zombies have been killed to move to Level 3
+            # Check if 1 zombie has been killed to move to Level 3
             if self.player.zombies_killed >= 1:
                 game_state["current_level"] = "level_3"
                 self.playing = False
@@ -191,4 +193,6 @@ def run_level2():
     while True:
         g.new()
         g.run()
+        if game_state["current_level"] == "level_3":
+            break
         g.show_go_screen()
