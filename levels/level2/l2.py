@@ -135,7 +135,7 @@ class Game:
             self.player.zombies_killed += 1  # Increase kill count
 
             # Check if 1 zombie has been killed to move to Level 3
-            if self.player.zombies_killed >= 1:
+            if self.player.zombies_killed >= 10:
                 game_state["current_level"] = "level_3"
                 self.playing = False
                 return

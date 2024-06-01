@@ -28,7 +28,7 @@ def show_win_screen(screen):
     fade_in(screen)
     font = pygame.font.Font(None, 74)
     win_text = font.render("Congrats you won!", True, (0, 255, 0))
-    exit_rect = exit_text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2 + 100))
+
 
     while True:
         for event in pygame.event.get():
