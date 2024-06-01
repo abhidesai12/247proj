@@ -10,6 +10,26 @@ from time import sleep
 from random import randint, randrange, uniform
 from g import game_state  # Import game_state to update the current level
 
+def fade_in(window, color=(0, 0, 0)):
+    """Function to fade in."""
+    fade_surface = pg.Surface(window.get_size())
+    fade_surface.fill(color)
+    for alpha in range(0, 255, 5):
+        fade_surface.set_alpha(alpha)
+        window.blit(fade_surface, (0, 0))
+        pg.display.update()
+        pg.time.delay(10)
+
+def fade_out(window, color=(0, 0, 0)):
+    """Function to fade out."""
+    fade_surface = pg.Surface(window.get_size())
+    fade_surface.fill(color)
+    for alpha in range(255, -1, -5):
+        fade_surface.set_alpha(alpha)
+        window.blit(fade_surface, (0, 0))
+        pg.display.update()
+        pg.time.delay(10)
+
 class Game:
     """The main game class: Contains main game loop."""
 
@@ -33,9 +53,11 @@ class Game:
         self.mob_img = pg.image.load(path.join(img_folder, MOB_IMG)).convert_alpha()
         self.mob2_img = pg.image.load(path.join(img_folder, MOB_IMG2)).convert_alpha()
         self.mob3_img = pg.image.load(path.join(img_folder, MOB_IMG3)).convert_alpha()
+        self.heart_img = pg.image.load(path.join(img_folder, 'heart.png')).convert_alpha()
+        self.heart_img = pg.transform.scale(self.heart_img, (30, 30))
         self.pausedScreen = pg.Surface(self.screen.get_size()).convert_alpha()
         self.pausedScreen.fill((0, 0, 0, 180))
-        
+
         # Load sounds
         self.hit_sound = pg.mixer.Sound("sound/hit.mp3")
         self.end_sound = pg.mixer.Sound("sound/end.mp3")
@@ -49,6 +71,7 @@ class Game:
         self.bullets = pg.sprite.Group()
         self.player = Player(self, 0, 0)  # Instantiate the player
         self.player.zombies_killed = 0  # Reset zombies killed count
+        self.lives = 3  # Number of lives/hearts
         for row, tiles in enumerate(self.map.map_data):
             for col, tile in enumerate(tiles):
                 self.map_row = row
@@ -94,7 +117,13 @@ class Game:
             hit.vel = vec(0, 0)
             self.hit_sound.play()  # Play hit sound
             if self.player.hp <= 0:
-                self.playing = False
+                self.lives -= 1  # Reduce lives
+                if self.lives <= 0:
+                    self.show_death_screen()
+                    game_state["current_level"] = "level_2"
+                    self.playing = False
+                    return
+                self.player.hp = PLAYER_HP  # Reset player health
             if hits:
                 self.player.pos += vec(MOB_KNOCKBACK, 0).rotate(-hits[0].rot)
         # BULLET HITTING MOBS
@@ -119,46 +148,16 @@ class Game:
                 draw_hp(sprite)
             self.screen.blit(sprite.image, self.camera.apply(sprite))
 
-        info = FONT.render("Press 'P' to pause the game.", True, WHITE)
-        self.screen.blit(info, (WIDTH - 250, HEIGHT - 25))
-
-        hpfont = FONT.render("Health: ", True, WHITE)
-        self.screen.blit(hpfont, (WIDTH-190, 10))
-
-        mouse = FONT.render("Zombies alive: "+str(len(self.mobs)), True, RED)
+        mouse = FONT.render("Librarians alive: "+str(len(self.mobs)), True, RED)
         self.screen.blit(mouse, (10, 30))
 
         fps = FONT.render("FPS: "+str(round(self.clock.get_fps(), 2)), True, GREEN)
-        self.screen.blit(fps, (10, 10))
 
-        score = FONT.render("Zombies Killed: " + str(self.player.zombies_killed), True, GREEN)
+        score = FONT.render("Librarians Killed: " + str(self.player.zombies_killed), True, GREEN)
         self.screen.blit(score, (WIDTH-160, 40))
 
-        draw_player_hp(self.screen, WIDTH-120, 10, self.player.hp / PLAYER_HP)
-
-        if self.player.zombies_killed != self.player.zombies_killed_updated:
-            x = random.randint(0, self.map_col)
-            y = random.randint(0, self.map_row)
-            x1 = random.randint(0, self.map_col)
-            y1 = random.randint(0, self.map_row)
-            self.check_col = 0
-            self.check_row = 0
-
-            for row, tiles in enumerate(self.map.map_data):
-                for col, tile in enumerate(tiles):
-                    if tile == '1':
-                        self.check_col = col
-                        self.check_row = row
-
-            if (self.map_col, self.map_row) != (self.check_col, self.check_row):
-                mob = Mob(self, x, y)
-                mob2 = Mob2(self, x1, y1)
-
-                self.mobs.add(mob)
-                self.all_sprites.add(mob)
-                self.mobs.add(mob2)
-                self.all_sprites.add(mob2)
-                self.player.zombies_killed_updated += 1
+        for i in range(self.lives):
+            self.screen.blit(self.heart_img, (10 + i * 40, 50))
 
         if self.paused:
             self.screen.blit(self.pausedScreen, (0, 0))
@@ -177,6 +176,39 @@ class Game:
                     self.quit()
                 if event.key == pg.K_p:
                     self.paused = not self.paused
+
+    def show_death_screen(self):
+        """Display the death screen when the player runs out of lives."""
+        fade_in(self.screen)
+        font = pg.font.Font(None, 74)
+        death_text = font.render("You Died", True, (255, 0, 0))
+        score_text = font.render(f"Score: {self.player.zombies_killed}", True, (255, 255, 255))
+        replay_text = font.render("Replay Game", True, (255, 255, 255))
+        replay_rect = replay_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 100))
+
+        while True:
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    sys.exit()
+                elif event.type == pg.MOUSEBUTTONDOWN:
+                    if replay_rect.collidepoint(event.pos):
+                        return  # Exit the death screen to restart the game
+
+            self.screen.fill((0, 0, 0))
+            self.screen.blit(
+                death_text,
+                (
+                    WIDTH // 2 - death_text.get_width() // 2,
+                    HEIGHT // 2 - death_text.get_height() - 75 // 2,
+                ),
+            )
+            self.screen.blit(
+                score_text,
+                (WIDTH // 2 - score_text.get_width() // 2, HEIGHT // 2),
+            )
+            self.screen.blit(replay_text, replay_rect.topleft)
+            pg.display.flip()
 
     def show_start_screen(self):
         """Call this at the start of the game."""
