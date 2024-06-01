@@ -117,7 +117,7 @@ class Game:
             hit.vel = vec(0, 0)
             self.hit_sound.play()  # Play hit sound
             if self.player.hp <= 0:
-                self.lives -= 1  # Reduce lives
+                self.lives -= 10  # Reduce lives
                 if self.lives <= 0:
                     self.show_death_screen()
                     game_state["current_level"] = "level_2"

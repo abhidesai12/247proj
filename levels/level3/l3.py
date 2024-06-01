@@ -1,10 +1,28 @@
 import pygame
-
 from levels.level3.player import Player
 from levels.level3.enemy import Enemy
 from levels.level3.field import Field
 from g import window_size, window, game_state
 
+def fade_in(window, color=(0, 0, 0)):
+    """Function to fade in."""
+    fade_surface = pygame.Surface(window.get_size())
+    fade_surface.fill(color)
+    for alpha in range(0, 255, 5):
+        fade_surface.set_alpha(alpha)
+        window.blit(fade_surface, (0, 0))
+        pygame.display.update()
+        pygame.time.delay(10)
+
+def fade_out(window, color=(0, 0, 0)):
+    """Function to fade out."""
+    fade_surface = pygame.Surface(window.get_size())
+    fade_surface.fill(color)
+    for alpha in range(255, -1, -5):
+        fade_surface.set_alpha(alpha)
+        window.blit(fade_surface, (0, 0))
+        pygame.display.update()
+        pygame.time.delay(10)
 
 def run_level3():
     SCREEN_WIDTH = window_size[0]
@@ -78,9 +96,14 @@ def run_level3():
     field_image = pygame.image.load("./levels/level3/bg.png")
     field_image = pygame.transform.scale(field_image, (FIELD_WIDTH, FIELD_HEIGHT))
 
+    heart_image = pygame.image.load("./levels/level3/heart.png")
+    heart_image = pygame.transform.scale(heart_image, (30, 30))
+    lives = 3  # Number of lives/hearts
+
     font = pygame.font.Font("freesansbold.ttf", 18)
 
     def update():
+        nonlocal lives
         keys = pygame.key.get_pressed()
         player.move(keys)
         for enemy in enemies:
@@ -89,6 +112,12 @@ def run_level3():
         if player.draw(screen).collidelist([enemy.draw(screen) for enemy in enemies]) != -1:
             player.reset()
             player.deaths += 1
+            lives -= 1
+            if lives <= 0:
+                show_death_screen()
+                game_state["current_level"] = "intro"
+                return
+
         if player.draw(screen).collidelist([finish_zone.draw(screen)]) != -1:
             print("Finished")
 
@@ -104,7 +133,42 @@ def run_level3():
         deathCounter = font.render("YOU'VE DIED " + str(player.deaths) + " TIMES. HAHA", True, (0, 0, 0))
         screen.blit(deathCounter, (300, 50))
 
+        for i in range(lives):
+            screen.blit(heart_image, (10 + i * 40, 10))
+
         pygame.display.update()
+
+    def show_death_screen():
+        fade_in(screen)
+        death_font = pygame.font.Font(None, 74)
+        death_text = death_font.render("You Died", True, (255, 0, 0))
+        score_text = death_font.render(f"Score: {player.deaths}", True, (255, 255, 255))
+        replay_text = death_font.render("Replay Game", True, (255, 255, 255))
+        replay_rect = replay_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 100))
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if replay_rect.collidepoint(event.pos):
+                        return  # Exit the death screen to restart the game
+
+            screen.fill((0, 0, 0))
+            screen.blit(
+                death_text,
+                (
+                    SCREEN_WIDTH // 2 - death_text.get_width() // 2,
+                    SCREEN_HEIGHT // 2 - death_text.get_height() - 75 // 2,
+                ),
+            )
+            screen.blit(
+                score_text,
+                (SCREEN_WIDTH // 2 - score_text.get_width() // 2, SCREEN_HEIGHT // 2),
+            )
+            screen.blit(replay_text, replay_rect.topleft)
+            pygame.display.flip()
 
     while isRunning:
         pygame.time.delay(50)

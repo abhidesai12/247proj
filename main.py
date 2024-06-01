@@ -35,7 +35,7 @@ def main():
         current_level = game_state.get("current_level")
         if current_level == "intro":
             #run_intro()
-            run_level2()
+            run_level3()
             game_state["current_level"] = "level_1"
         elif current_level == "level_1":
             run_level1()
