@@ -117,7 +117,7 @@ class Game:
             hit.vel = vec(0, 0)
             self.hit_sound.play()  # Play hit sound
             if self.player.hp <= 0:
-                self.lives -= 10  # Reduce lives
+                self.lives -= 1  # Reduce lives
                 if self.lives <= 0:
                     self.show_death_screen()
                     game_state["current_level"] = "level_2"
@@ -134,11 +134,15 @@ class Game:
             self.destroy_sound.play()  # Play destroy sound
             self.player.zombies_killed += 1  # Increase kill count
 
-            # Check if 1 zombie has been killed to move to Level 3
+            # Check if 10 zombies have been killed to move to Level 3
             if self.player.zombies_killed >= 10:
                 game_state["current_level"] = "level_3"
                 self.playing = False
                 return
+
+        # Ensure a constant number of mobs are always present
+        while len(self.mobs) < 10:
+            self.spawn_mob()
 
     def draw(self):
         """Draws things on the screen."""
@@ -217,6 +221,16 @@ class Game:
     def show_go_screen(self):
         """Call this when game is over."""
         pass
+
+    def spawn_mob(self):
+        """Function to spawn a new mob."""
+        mob_type = random.choice(['M', 'H', 'T'])
+        if mob_type == 'M':
+            Mob(self, random.randint(0, self.map_col), random.randint(0, self.map_row))
+        elif mob_type == 'H':
+            Mob2(self, random.randint(0, self.map_col), random.randint(0, self.map_row))
+        elif mob_type == 'T':
+            Mob3(self, random.randint(0, self.map_col), random.randint(0, self.map_row))
 
 # Function to run level 2
 def run_level2():
