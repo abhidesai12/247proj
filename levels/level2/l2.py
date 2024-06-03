@@ -112,20 +112,17 @@ class Game:
         self.camera.update(self.player)
         # MOBS HITTING PLAYER
         hits = pg.sprite.spritecollide(self.player, self.mobs, False, collide_hit_rect)
-        for hit in hits:
-            self.player.hp -= MOB_DAMAGE
-            hit.vel = vec(0, 0)
+        if hits:
+            self.lives -= 1  # Reduce lives
             self.hit_sound.play()  # Play hit sound
-            if self.player.hp <= 0:
-                self.lives -= 1  # Reduce lives
-                if self.lives <= 0:
-                    self.show_death_screen()
-                    game_state["current_level"] = "level_2"
-                    self.playing = False
-                    return
-                self.player.hp = PLAYER_HP  # Reset player health
-            if hits:
-                self.player.pos += vec(MOB_KNOCKBACK, 0).rotate(-hits[0].rot)
+            if self.lives <= 0:
+                self.show_death_screen()
+                game_state["current_level"] = "level_2"
+                self.playing = False
+                return
+            self.player.pos += vec(MOB_KNOCKBACK, 0).rotate(-hits[0].rot)
+            self.player.hp = PLAYER_HP  # Reset player health
+
         # BULLET HITTING MOBS
         hits = pg.sprite.groupcollide(self.mobs, self.bullets, False, True)
         for hit in hits:
@@ -152,13 +149,14 @@ class Game:
                 draw_hp(sprite)
             self.screen.blit(sprite.image, self.camera.apply(sprite))
 
-        mouse = FONT.render("Librarians alive: "+str(len(self.mobs)), True, RED)
+        mouse = FONT.render("Librarians alive: " + str(len(self.mobs)), True, RED)
         self.screen.blit(mouse, (10, 30))
 
-        fps = FONT.render("FPS: "+str(round(self.clock.get_fps(), 2)), True, GREEN)
+        fps = FONT.render("FPS: " + str(round(self.clock.get_fps(), 2)), True, GREEN)
+        self.screen.blit(fps, (10, 10))
 
         score = FONT.render("Librarians Killed: " + str(self.player.zombies_killed), True, GREEN)
-        self.screen.blit(score, (WIDTH-160, 40))
+        self.screen.blit(score, (WIDTH - 160, 40))
 
         for i in range(self.lives):
             self.screen.blit(self.heart_img, (10 + i * 40, 50))
@@ -166,7 +164,7 @@ class Game:
         if self.paused:
             self.screen.blit(self.pausedScreen, (0, 0))
             p_screen = FONT2.render("PAUSED!", True, GREEN)
-            self.screen.blit(p_screen, (WIDTH/2 - 75, HEIGHT/2 - 20))
+            self.screen.blit(p_screen, (WIDTH / 2 - 75, HEIGHT / 2 - 20))
 
         pg.display.flip()
 
