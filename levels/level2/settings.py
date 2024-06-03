@@ -2,6 +2,7 @@
 import pygame as pg
 import math
 from random import choice
+
 pg.init()
 pg.font.init()
 vec = pg.math.Vector2
@@ -16,9 +17,9 @@ RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 
 # GAME SETTINGS
-TITLE = 'Zombie Maze'
+TITLE = "Cardinal Conquest"
 WIDTH = 800
-HEIGHT = int(WIDTH/4 * 3)
+HEIGHT = int(WIDTH / 4 * 3)
 SCREEN_SIZE = (WIDTH, HEIGHT)
 FPS = 60
 TILESIZE = 32
@@ -28,14 +29,14 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 # PLAYER PROPERTIES
 PLAYER_HP = 150
 PLAYER_SPEED = 150
-PLAYER_IMG = 'main_player.png'
+PLAYER_IMG = "main_player.png"
 PLAYER_ROT_SPEED = math.pi
 PLAYER_HIT_RECT = pg.Rect(0, 0, 32, 32)
 ZOMBIES_KILLED = 0
 
 # GUN PROPERTIES
 BULLET_OFFSET = vec(20, 10)
-BULLET_IMG = 'bullet.png'
+BULLET_IMG = "bullet.png"
 BULLET_SPEED = 300
 BULLET_TRAVEL = 1000
 BULLET_RATE = 200
@@ -44,9 +45,9 @@ GUN_SPREAD = 5
 BULLET_DAMAGE = 20
 
 # MOB PROPERTIES
-MOB_IMG = 'mob1.png'
-MOB_IMG2 = 'mob2.png'
-MOB_IMG3 = 'mob3.png'
+MOB_IMG = "mob1.png"
+MOB_IMG2 = "mob2.png"
+MOB_IMG3 = "mob3.png"
 MOB_HP = 100
 MOB_HP2 = 50
 MOB_HP3 = 200
