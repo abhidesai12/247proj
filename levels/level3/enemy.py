@@ -6,9 +6,9 @@ class Enemy:
     def __init__(
         self,
         path,
-        width=20,
-        height=20,
-        vel=5,
+        width=35,
+        height=70,
+        vel=9,
         color=(255, 165, 0),
         field_x=0,
         field_y=0,
@@ -24,25 +24,12 @@ class Enemy:
         self.x, self.y = self.path[self.current_point]
 
         # Assign a sprite on init
-        sprite_path = random.choice(["./levels/level3/enemy1.png", "./levels/level3/enemy2.png"])
-        self.sprite = pygame.image.load(sprite_path)
+        sprite_path = random.choice(["./levels/level3/enemy1-lg.png", "./levels/level3/enemy2-lg.png"])
+        self.sprite = pygame.image.load(sprite_path).convert_alpha()
         self.sprite = pygame.transform.scale(self.sprite, (self.width, self.height))
 
     def draw(self, screen):
-        # Draw the border
-        pygame.draw.rect(
-            screen,
-            (0, 0, 0),
-            (
-                self.x - 1 + self.field_x,
-                self.y - 1 + self.field_y,
-                self.width + 2,
-                self.height + 2,
-            ),
-        )
-
-        # Draw the sprite
-        return screen.blit(self.sprite, (self.x + self.field_x, self.y + self.field_y))
+        return screen.blit(self.sprite, (self.x, self.y))
 
     def move(self):
         if self.current_point < len(self.path) - 1:
