@@ -5,6 +5,10 @@ from levels.level3.field import Field
 from g import window_size, window, game_state
 
 
+pygame.mixer.init()
+hit_sound = pygame.mixer.Sound("./sound/hit.mp3")
+
+
 def fade_in(window, color=(0, 0, 0)):
     """Function to fade in."""
     fade_surface = pygame.Surface(window.get_size())
@@ -148,6 +152,7 @@ def run_level3():
             enemy.move()
 
         if player.draw(screen).collidelist([enemy.draw(screen) for enemy in enemies]) != -1:
+            hit_sound.play()
             player.reset()
             player.deaths += 1
             lives -= 1
