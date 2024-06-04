@@ -24,7 +24,7 @@ class Enemy:
         self.x, self.y = self.path[self.current_point]
 
         # Assign a sprite on init
-        sprite_path = random.choice(["./levels/level3/enemy1-lg.png", "./levels/level3/enemy2-lg.png"])
+        sprite_path = random.choice(["./images/enemy1-lg.png", "./images/enemy2-lg.png"])
         self.sprite = pygame.image.load(sprite_path).convert_alpha()
         self.sprite = pygame.transform.scale(self.sprite, (self.width, self.height))
 

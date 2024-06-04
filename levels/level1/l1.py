@@ -27,6 +27,7 @@ hit_sound = pygame.mixer.Sound("sound/hit.mp3")
 end_sound = pygame.mixer.Sound("sound/end.mp3")
 destroy_sound = pygame.mixer.Sound("sound/destroy.wav")
 
+
 def draw_text_with_outline(surface, text, font, text_color, outline_color, x, y):
     # Render the text
     text_surface = font.render(text, True, text_color)
@@ -40,6 +41,7 @@ def draw_text_with_outline(surface, text, font, text_color, outline_color, x, y)
 
     # Draw the actual text on top
     surface.blit(text_surface, (x, y))
+
 
 # Load flame animation frames
 flame_frames = []
@@ -72,6 +74,7 @@ player = {
     "frequency": 0.1,
 }
 
+
 # Function to create a new tree
 def create_tree(word):
     tree = {
@@ -82,11 +85,13 @@ def create_tree(word):
     }
     level_1_state["trees"].append(tree)
 
+
 # Function to create a boss
 def create_boss():
     level_1_state["boss_active"] = True
     level_1_state["boss_paragraph"] = generate_random_paragraph()
     level_1_state["boss_typed"] = ""
+
 
 # Function to generate a random paragraph
 def generate_random_paragraph():
@@ -94,6 +99,7 @@ def generate_random_paragraph():
         "Your retarded",
     ]
     return " ".join(random.choices(sentences, k=2))
+
 
 # Function to fade in
 def fade_in(window, color=(0, 0, 0)):
@@ -105,6 +111,7 @@ def fade_in(window, color=(0, 0, 0)):
         pygame.display.update()
         pygame.time.delay(10)
 
+
 # Function to fade out
 def fade_out(window, color=(0, 0, 0)):
     fade_surface = pygame.Surface(window.get_size())
@@ -114,6 +121,7 @@ def fade_out(window, color=(0, 0, 0)):
         window.blit(fade_surface, (0, 0))
         pygame.display.update()
         pygame.time.delay(10)
+
 
 # Function to display the death page
 def display_death_page(window, score):
@@ -148,6 +156,7 @@ def display_death_page(window, score):
         window.blit(replay_text, replay_rect.topleft)
         pygame.display.flip()
 
+
 # Function to display the win page
 def display_win_page(window, score):
     fade_in(window)
@@ -181,6 +190,7 @@ def display_win_page(window, score):
         window.blit(replay_text, replay_rect.topleft)
         pygame.display.flip()
 
+
 # Function to wrap text
 def wrap_text(text, font, max_width):
     words = text.split()
@@ -195,6 +205,7 @@ def wrap_text(text, font, max_width):
     if current_line:
         lines.append(current_line)
     return lines
+
 
 # Function to run level 1
 def run_level1():
@@ -241,7 +252,7 @@ def run_level1():
         if level_1_state["show_death_screen"]:
             display_death_page(window, level_1_state["score"])
             fade_out(window)
-            game_state["current_level"] = "level_1"
+            game_state["current_level"] = "final_level"
             level_1_state["trees"].clear()
             for _ in range(5):
                 create_tree(random.choice(words))

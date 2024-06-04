@@ -61,7 +61,7 @@ def run_level3():
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-    isRunning = True
+    is_running = True
 
     # TOP LEFT
     start_zone = Field(FIELD_X + 235, FIELD_Y + 5, 60, 10)
@@ -135,10 +135,10 @@ def run_level3():
         ),
     ]
 
-    field_image = pygame.image.load("./levels/level3/bg2.png")
+    field_image = pygame.image.load("./images/bg2.png")
     field_image = pygame.transform.scale(field_image, (FIELD_WIDTH, FIELD_HEIGHT))
 
-    heart_image = pygame.image.load("./levels/level3/heart.png")
+    heart_image = pygame.image.load("./images/heart.png")
     heart_image = pygame.transform.scale(heart_image, (30, 30))
     lives = 3  # Number of lives/hearts
 
@@ -146,6 +146,7 @@ def run_level3():
 
     def update():
         nonlocal lives
+        nonlocal is_running
         keys = pygame.key.get_pressed()
         player.move(keys)
         for enemy in enemies:
@@ -162,8 +163,8 @@ def run_level3():
                 return
 
         if player.draw(screen).collidelist([finish_zone.draw(screen)]) != -1:
-            show_win_screen(screen)
-            game_state["current_level"] = "intro"
+            game_state["current_level"] = "final_level"
+            is_running = False
             return
 
     def draw():
@@ -215,11 +216,11 @@ def run_level3():
             screen.blit(replay_text, replay_rect.topleft)
             pygame.display.flip()
 
-    while isRunning:
+    while is_running:
         pygame.time.delay(50)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                isRunning = False
+                is_running = False
 
         update()
         draw()
