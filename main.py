@@ -158,7 +158,6 @@ def main():
     while True:
         current_level = game_state.get("current_level")
         if current_level == "intro":
-            run_level1()
             run_intro()
             play_cutscene("intro_1")
             game_state["current_level"] = "level_2"

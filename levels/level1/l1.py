@@ -66,8 +66,7 @@ level_1_state = {
     "boss_speed": 1.0,  # Boss movement speed
     "boss_dialogue_shown": False,
     "wave": 1,
-    "trees_destroyed": 0,
-    "total_trees": 30,
+    "trees_destroyed": 0
 }
 
 # Define player attributes
@@ -275,10 +274,9 @@ def run_level1():
                                 if level_1_state["trees_destroyed"] == 10:
                                     level_1_state["wave"] = 2
                                 elif level_1_state["trees_destroyed"] == 20:
-                                    level_1_state["wave"] = 3
                                     create_boss()
-                                elif level_1_state["trees_destroyed"] == 30:
-                                    level_1_state["boss_active"] = False
+                                    level_1_state["wave"] = 3
+                                elif level_1_state["trees_destroyed"] == 30 and not level_1_state["boss_active"]:
                                     display_win_page(window, level_1_state["score"])
                                     game_state["current_level"] = "level_2"
                                     return
@@ -296,10 +294,12 @@ def run_level1():
             game_state["current_level"] = "level_1"
             level_1_state["trees"].clear()
             for _ in range(5):
-                create_tree(random.choice(words))
+                create_tree(random.choice(words), 1.0)
             level_1_state["typed_word"] = ""
             level_1_state["lives"] = 3
             level_1_state["score"] = 0
+            level_1_state["trees_destroyed"] = 0
+            level_1_state["wave"] = 1
             pygame.mixer.music.play(-1)
             level_1_state["show_death_screen"] = False
             continue
@@ -329,21 +329,19 @@ def run_level1():
                 game_state["current_level"] = "level_1"
                 level_1_state["trees"].clear()
                 for _ in range(5):
-                    create_tree(random.choice(words))
+                    create_tree(random.choice(words), 1.0)
                 level_1_state["typed_word"] = ""
                 level_1_state["lives"] = 3
                 level_1_state["score"] = 0
+                level_1_state["trees_destroyed"] = 0
+                level_1_state["wave"] = 1
                 pygame.mixer.music.play(-1)
                 level_1_state["show_death_screen"] = False
                 continue
 
             window.blit(boss_sprite, boss_position)
-
-            # Display the boss's paragraph and typed text near the boss
-            boss_text_x = boss_position[0] - boss_sprite.get_width() // 2
-            boss_text_y = boss_position[1] - boss_sprite.get_height() // 2 - 30
-            display_text(window, level_1_state["boss_paragraph"], (boss_text_x, boss_text_y))
-            display_text(window, level_1_state["boss_typed"], (boss_text_x, boss_text_y + 50))
+            display_text(window, level_1_state["boss_paragraph"], (boss_position[0] - 50, boss_position[1] - 50))
+            display_text(window, level_1_state["boss_typed"], (boss_position[0] - 50, boss_position[1]))
 
             if not level_1_state["boss_dialogue_shown"]:
                 display_boss_dialogue(window, "Prepare to be defeated!")
@@ -351,27 +349,26 @@ def run_level1():
                 pygame.display.flip()
                 pygame.time.delay(2000)  # Show the dialogue for 2 seconds
 
-        else:
-            for tree in level_1_state["trees"]:
-                window.blit(
-                    tree_sprite,
-                    (
-                        tree["position"][0] - tree_sprite.get_width() / 2,
-                        tree["position"][1] - tree_sprite.get_height() / 2,
-                    ),
-                )
-                tree["position"][0] -= tree["speed"]
+        for tree in level_1_state["trees"]:
+            window.blit(
+                tree_sprite,
+                (
+                    tree["position"][0] - tree_sprite.get_width() / 2,
+                    tree["position"][1] - tree_sprite.get_height() / 2,
+                ),
+            )
+            tree["position"][0] -= tree["speed"]
 
-                draw_text_with_outline(window, tree["word"], font, (255, 255, 255), (0, 0, 0), tree["position"][0] - font.size(tree["word"])[0] / 2, tree["position"][1] - 50)
+            draw_text_with_outline(window, tree["word"], font, (255, 255, 255), (0, 0, 0), tree["position"][0] - font.size(tree["word"])[0] / 2, tree["position"][1] - 50)
 
-                if tree["position"][0] < player["position"][0] + student_sprite.get_width() / 2:
-                    level_1_state["trees"].remove(tree)
-                    level_1_state["lives"] -= 1
-                    hit_sound.play()
-                    if level_1_state["lives"] == 0:
-                        pygame.mixer.music.stop()
-                        end_sound.play()
-                        level_1_state["show_death_screen"] = True
+            if tree["position"][0] < player["position"][0] + student_sprite.get_width() / 2:
+                level_1_state["trees"].remove(tree)
+                level_1_state["lives"] -= 1
+                hit_sound.play()
+                if level_1_state["lives"] == 0:
+                    pygame.mixer.music.stop()
+                    end_sound.play()
+                    level_1_state["show_death_screen"] = True
 
         for animation in level_1_state["flame_animations"][:]:
             frame = animation["frame"]
@@ -398,16 +395,15 @@ def run_level1():
 
         pygame.display.flip()
 
-        if not level_1_state["boss_active"] and random.randint(1, 200) > 195:
-            if level_1_state["wave"] == 1:
-                new_word = random.choice(words)
-                create_tree(new_word, speed=random.uniform(0.5, 1.0))
-            elif level_1_state["wave"] == 2:
-                new_word = random.choice(words)
-                create_tree(new_word, speed=random.uniform(1.0, 1.5))
-            elif level_1_state["wave"] == 3 and len(level_1_state["trees"]) < 10:
-                new_word = random.choice(words)
-                create_tree(new_word, speed=random.uniform(1.5, 2.0))
+        if level_1_state["wave"] == 1 and random.randint(1, 200) > 195:
+            new_word = random.choice(words)
+            create_tree(new_word, 1.0)
+        elif level_1_state["wave"] == 2 and random.randint(1, 150) > 140:
+            new_word = random.choice(words)
+            create_tree(new_word, 2.0)
+        elif level_1_state["wave"] == 3 and random.randint(1, 100) > 90:
+            new_word = random.choice(words)
+            create_tree(new_word, 3.0)
 
         level_1_state["frame_count"] += 1
         clock.tick(30)
