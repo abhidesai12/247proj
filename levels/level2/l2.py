@@ -152,10 +152,7 @@ class Game:
         mouse = FONT.render("Librarians alive: " + str(len(self.mobs)), True, RED)
         self.screen.blit(mouse, (10, 30))
 
-        fps = FONT.render("FPS: " + str(round(self.clock.get_fps(), 2)), True, GREEN)
-        self.screen.blit(fps, (10, 10))
 
-        score = FONT.render("Librarians Killed: " + str(self.player.zombies_killed), True, GREEN)
 
         for i in range(self.lives):
             self.screen.blit(self.heart_img, (10 + i * 40, 50))

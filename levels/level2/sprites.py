@@ -6,6 +6,12 @@ from .tilemap import collide_hit_rect
 
 vec = pg.math.Vector2
 
+def get_angle(sprite):
+    mouse_x, mouse_y = pg.mouse.get_pos()
+    rel_x, rel_y = mouse_x - sprite.rect.centerx, mouse_y - sprite.rect.centery
+    angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
+    return angle
+
 def sprite_collision(sprite, group, dir):
     """Call this when player or mob collides with a wall."""
     if dir == 'x':
@@ -43,10 +49,10 @@ class Player(pg.sprite.Sprite):
         self.hit_rect.center = self.rect.center
         self.vel = vec(0, 0)
         self.pos = vec(x, y) * TILESIZE
-        self.direction = vec(1, 0)  # Default direction to the right
         self.last_shot = 0
         self.hp = PLAYER_HP
         self.zombies_killed = 0
+        self.shoot_cooldown = 500  # Cooldown time in milliseconds
 
     def get_keys(self):
         """Gets keyboard inputs and moves the player according to that."""
@@ -54,33 +60,37 @@ class Player(pg.sprite.Sprite):
         keys = pg.key.get_pressed()
         if keys[pg.K_a]:  # Left
             self.vel.x = -PLAYER_SPEED
-            self.direction = vec(-1, 0)
         if keys[pg.K_d]:  # Right
             self.vel.x = PLAYER_SPEED
-            self.direction = vec(1, 0)
         if keys[pg.K_w]:  # Up
             self.vel.y = -PLAYER_SPEED
-            self.direction = vec(0, -1)
         if keys[pg.K_s]:  # Down
             self.vel.y = PLAYER_SPEED
-            self.direction = vec(0, 1)
         if self.vel.x != 0 and self.vel.y != 0:
             self.vel *= 0.85
-        if keys[pg.K_SPACE]:
+
+    def get_mouse(self):
+        """Handle mouse input for firing bullets."""
+        mouse_pressed = pg.mouse.get_pressed()
+        if mouse_pressed[0]:  # Left mouse button
             now = pg.time.get_ticks()
-            if now - self.last_shot > BULLET_RATE:
+            if now - self.last_shot > self.shoot_cooldown:
                 self.last_shot = now
-                Bullet(self.game, self.pos, self.direction)
+                mouse_pos = pg.mouse.get_pos()
+                direction = vec(mouse_pos[0] - self.pos.x, mouse_pos[1] - self.pos.y).normalize()
+                Bullet(self.game, self.pos, direction)
 
     def update(self):
         """Updates for the loop."""
         self.get_keys()
+        self.get_mouse()
         self.pos += self.vel * self.game.dt
         self.hit_rect.centerx = self.pos.x
         sprite_collision(self, self.game.walls, 'x')
         self.hit_rect.centery = self.pos.y
         sprite_collision(self, self.game.walls, 'y')
         self.rect.center = self.hit_rect.center
+
 
 def avoid_mobs(sprite):
     for mob in sprite.game.mobs:

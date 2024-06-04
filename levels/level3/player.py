@@ -1,7 +1,6 @@
 import pygame
 import math
 
-
 class Player:
     def __init__(
         self,
@@ -36,13 +35,13 @@ class Player:
         self.sprite = pygame.transform.scale(self.sprite, (self.width, self.height))
 
     def move(self, keys):
-        if keys[pygame.K_LEFT] and self.x > self.field_x + self.width:
+        if keys[pygame.K_a] and self.x > self.field_x + self.width:
             self.x -= self.vel
-        if keys[pygame.K_RIGHT] and self.x < self.field_x + self.field_width - self.width:
+        if keys[pygame.K_d] and self.x < self.field_x + self.field_width - self.width:
             self.x += self.vel
-        if keys[pygame.K_DOWN] and self.y < self.field_y + self.field_height - self.height:
+        if keys[pygame.K_s] and self.y < self.field_y + self.field_height - self.height:
             self.y += self.vel
-        if keys[pygame.K_UP] and self.y > self.field_y + self.height:
+        if keys[pygame.K_w] and self.y > self.field_y + self.height:
             self.y -= self.vel
 
     def draw(self, screen):
