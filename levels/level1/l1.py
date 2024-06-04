@@ -181,7 +181,6 @@ def display_win_page(window, score):
             ),
         )
  
-        window.blit(replay_text, replay_rect.topleft)
         pygame.display.flip()
 
 # Function to wrap text

@@ -156,7 +156,6 @@ class Game:
         self.screen.blit(fps, (10, 10))
 
         score = FONT.render("Librarians Killed: " + str(self.player.zombies_killed), True, GREEN)
-        self.screen.blit(score, (WIDTH - 160, 40))
 
         for i in range(self.lives):
             self.screen.blit(self.heart_img, (10 + i * 40, 50))

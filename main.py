@@ -48,7 +48,7 @@ backgrounds = {
 }
 
 # Load and scale character images
-mtl_image = pygame.transform.scale(pygame.image.load('assets/characters/mtl.png'), (100, 150))
+mtl_image = pygame.transform.scale(pygame.image.load('assets/characters/mtl.png'), (150, 225))
 player_image = pygame.transform.scale(pygame.image.load('assets/characters/player.png'), (100, 150))
 mtl_monster_image = pygame.transform.scale(pygame.image.load('assets/characters/mtl_monster.png'), (150, 200))
 frat_guy_image = pygame.transform.scale(pygame.image.load('assets/characters/frat_guy.png'), (100, 150))
@@ -81,7 +81,7 @@ cutscenes = {
         {"bg": "dish", "character": "Narrator", "text": "Type the Stanford slang words as fast as you can to disrupt MTL's process!"},
         {"bg": "dish", "character": "Player", "text": "MTL! It’s time for you to give me back my research!"},
         {"bg": "dish", "character": "MTL", "text": "Fine! The hard way it is! You leave me no choice but to treeify myself and take you down personally!", "transform": True},
-        {"bg": "dish", "character": "Instructions", "text": "Type to destroy the evil trees and be ware of M-Tree-L!"}
+        {"bg": "dish", "character": "Instructions", "text": "Type to destroy the evil trees and beware of M-Tree-L!"}
     ]
 }
 
@@ -107,21 +107,25 @@ def display_text(screen, text, position):
         screen.blit(text_surface, (textbox_rect.x + 10, textbox_rect.y + 10 + i * font.get_height()))
 
 # Function to play cutscene
-# Function to play cutscene
 def play_cutscene(cutscene_key):
     clock = pygame.time.Clock()
     cutscene = cutscenes[cutscene_key]
     index = 0
     mtl_transformed = False
+    space_pressed = False
 
     while index < len(cutscene):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                index += 1
-                pygame.time.delay(200)  # Add a short delay to prevent multiple registrations
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE and not space_pressed:
+                    index += 1
+                    space_pressed = True
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_SPACE:
+                    space_pressed = False
 
         if index >= len(cutscene):
             break
@@ -150,13 +154,10 @@ def play_cutscene(cutscene_key):
         pygame.display.flip()
         clock.tick(30)
 
-
-
 def main():
     while True:
         current_level = game_state.get("current_level")
         if current_level == "intro":
-            run_level1()
             run_intro()
             play_cutscene("intro_1")
             game_state["current_level"] = "level_2"
