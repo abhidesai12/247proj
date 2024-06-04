@@ -81,7 +81,7 @@ def create_tree(word):
         "position": [random.randint(800, 1600), random.randint(50, 550)],
         "radius": 20,
         "speed": random.uniform(0.5, 1.5) + level_1_state["score"] * 0.01,
-        "word": word,
+        "word": word.lower(),  # Ensure the word is in lower case
     }
     level_1_state["trees"].append(tree)
 
@@ -101,7 +101,7 @@ def generate_random_paragraph():
     sentences = [
         "I AM GOING TO DEFEAT YOU!"
     ]
-    return " ".join(random.choices(sentences, k=1))
+    return " ".join(random.choices(sentences, k=1)).lower()  # Ensure the paragraph is in lower case
 
 # Function to fade in
 def fade_in(window, color=(0, 0, 0)):
@@ -251,7 +251,7 @@ def run_level1():
                         level_1_state["typed_word"] = level_1_state["typed_word"][:-1]
                 elif event.key == pygame.K_RETURN:
                     if level_1_state["boss_active"]:
-                        if level_1_state["boss_typed"].strip() == level_1_state["boss_paragraph"].strip():
+                        if level_1_state["boss_typed"].strip().lower() == level_1_state["boss_paragraph"].strip().lower():
                             destroy_sound.play()
                             level_1_state["flame_animations"].append({"position": level_1_state["boss_position"], "frame": 0})
                             # Switch back to background music
@@ -263,7 +263,7 @@ def run_level1():
                             return
                     else:
                         for tree in level_1_state["trees"]:
-                            if tree["word"] == level_1_state["typed_word"]:
+                            if tree["word"] == level_1_state["typed_word"].lower():
                                 destroy_sound.play()
                                 level_1_state["flame_animations"].append({"position": tree["position"], "frame": 0})
                                 level_1_state["trees"].remove(tree)
@@ -274,9 +274,9 @@ def run_level1():
                         level_1_state["typed_word"] = ""
                 else:
                     if level_1_state["boss_active"]:
-                        level_1_state["boss_typed"] += event.unicode
+                        level_1_state["boss_typed"] += event.unicode.lower()
                     else:
-                        level_1_state["typed_word"] += event.unicode
+                        level_1_state["typed_word"] += event.unicode.lower()
 
         if level_1_state["show_death_screen"]:
             display_death_page(window, level_1_state["score"])
