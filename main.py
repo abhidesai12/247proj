@@ -65,20 +65,23 @@ cutscenes = {
         {"bg": "lab", "character": "Player", "text": "He's heading to Green! I can't let him get away with this."}
     ],
     "intro_2": [
-        {"bg": "green", "character": "Narrator", "text": "I made it to Green! Looks like this place is crawling with his henchmen though… To make it through, I need to defend myself and defeat his minions"},
-        {"bg": "green", "character": "Player", "text": "There he goes! I can't lose him now."}
+        {"bg": "green", "character": "Narrator", "text": "I made it to Green! Looks like this place is crawling with his librarian henchmen though… To make it through, I need to defend myself and defeat his minions"},
+        {"bg": "green", "character": "Player", "text": "There he goes! I can't lose him now."},
+        {"bg": "green", "character": "Instructions", "text": "Use spacebar to shoot and arrow keys to navigate!"}
     ],
     "intro_3": [
         {"bg": "frat_house", "character": "Frat Guy", "text": "Hey! Where do you think you’re going? Do you have a wristband? This party is invite-only!"},
         {"bg": "frat_house", "character": "Narrator", "text": "I’ve gotta make it past all these frat bros without getting caught. If I’m found, who knows what they’ll do to me."},
-        {"bg": "frat_house", "character": "Player", "text": "He's leaving the party. This might be my chance to catch up!"}
+        {"bg": "frat_house", "character": "Player", "text": "He's leaving the party. This might be my chance to catch up!"},
+        {"bg": "frat_house", "character": "Instructions", "text": "Use arrow keys to navigate through the frat house!"}
     ],
     "intro_4": [
         {"bg": "dish", "character": "Player", "text": "To the Main Quad, he must be heading towards the central lab!"},
         {"bg": "dish", "character": "MTL", "text": "Hahahaha! Too slow! I've already started the treeification process. Your research is mine!"},
         {"bg": "dish", "character": "Narrator", "text": "Type the Stanford slang words as fast as you can to disrupt MTL's process!"},
         {"bg": "dish", "character": "Player", "text": "MTL! It’s time for you to give me back my research!"},
-        {"bg": "dish", "character": "MTL", "text": "Fine! The hard way it is! You leave me no choice but to treeify myself and take you down personally!", "transform": True}
+        {"bg": "dish", "character": "MTL", "text": "Fine! The hard way it is! You leave me no choice but to treeify myself and take you down personally!", "transform": True},
+        {"bg": "dish", "character": "Instructions", "text": "Type to destroy the evil trees and be ware of M-Tree-L!"}
     ]
 }
 

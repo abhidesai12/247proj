@@ -27,6 +27,7 @@ hit_sound = pygame.mixer.Sound("sound/hit.mp3")
 end_sound = pygame.mixer.Sound("sound/end.mp3")
 destroy_sound = pygame.mixer.Sound("sound/destroy.wav")
 boss_music_path = "sound/boss.mp3"
+background_music_path = "sound/background.mp3"
 
 def draw_text_with_outline(surface, text, font, text_color, outline_color, x, y):
     # Render the text
@@ -96,10 +97,9 @@ def create_boss():
 # Function to generate a random paragraph
 def generate_random_paragraph():
     sentences = [
-        "This is a randomly generated paragraph that the player must type to defeat the boss.",
-        "Another sentence to make the paragraph longer and more challenging.",
+        "Hello world"
     ]
-    return " ".join(random.choices(sentences, k=2))
+    return " ".join(random.choices(sentences, k=1))
 
 # Function to fade in
 def fade_in(window, color=(0, 0, 0)):
@@ -180,10 +180,7 @@ def display_win_page(window, score):
                 window_size[1] // 2 - win_text.get_height() - 75 // 2,
             ),
         )
-        window.blit(
-            score_text,
-            (window_size[0] // 2 - score_text.get_width() // 2, window_size[1] // 2),
-        )
+ 
         window.blit(replay_text, replay_rect.topleft)
         pygame.display.flip()
 
@@ -230,13 +227,19 @@ def run_level1():
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_BACKSPACE:
-                    if boss_active:
-                        boss_typed = boss_typed[:-1]
+                    if level_1_state["boss_active"]:
+                        level_1_state["boss_typed"] = level_1_state["boss_typed"][:-1]
                     else:
                         level_1_state["typed_word"] = level_1_state["typed_word"][:-1]
                 elif event.key == pygame.K_RETURN:
-                    if boss_active:
-                        if boss_typed == boss_paragraph:
+                    if level_1_state["boss_active"]:
+                        if level_1_state["boss_typed"].strip() == level_1_state["boss_paragraph"].strip():
+                            destroy_sound.play()
+                            level_1_state["flame_animations"].append({"position": level_1_state["boss_position"], "frame": 0})
+                            # Switch back to background music
+                            pygame.mixer.music.stop()
+                            pygame.mixer.music.load(background_music_path)
+                            pygame.mixer.music.play(-1)
                             display_win_page(window, level_1_state["score"])
                             game_state["current_level"] = "level_2"
                             return
@@ -247,13 +250,13 @@ def run_level1():
                                 level_1_state["flame_animations"].append({"position": tree["position"], "frame": 0})
                                 level_1_state["trees"].remove(tree)
                                 level_1_state["score"] += 1
-                                if level_1_state["score"] >= 10 and not boss_active:
+                                if level_1_state["score"] >= 10 and not level_1_state["boss_active"]:
                                     create_boss()
                                 break
                         level_1_state["typed_word"] = ""
                 else:
-                    if boss_active:
-                        boss_typed += event.unicode
+                    if level_1_state["boss_active"]:
+                        level_1_state["boss_typed"] += event.unicode
                     else:
                         level_1_state["typed_word"] += event.unicode
 
@@ -306,7 +309,7 @@ def run_level1():
 
             window.blit(boss_sprite, boss_position)
             display_text(window, level_1_state["boss_paragraph"], (50, 400))
-            display_text(window, boss_typed, (50, 450))
+            display_text(window, level_1_state["boss_typed"], (50, 450))
         else:
             for tree in level_1_state["trees"]:
                 window.blit(
@@ -354,7 +357,7 @@ def run_level1():
 
         pygame.display.flip()
 
-        if not boss_active and random.randint(1, 200) > 195:
+        if not level_1_state["boss_active"] and random.randint(1, 200) > 195:
             new_word = random.choice(words)
             create_tree(new_word)
 
