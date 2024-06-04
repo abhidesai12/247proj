@@ -26,7 +26,7 @@ boss_sprite = pygame.transform.scale(boss_sprite, (150, 150))
 hit_sound = pygame.mixer.Sound("sound/hit.mp3")
 end_sound = pygame.mixer.Sound("sound/end.mp3")
 destroy_sound = pygame.mixer.Sound("sound/destroy.wav")
-
+boss_music_path = "sound/boss.mp3"
 
 def draw_text_with_outline(surface, text, font, text_color, outline_color, x, y):
     # Render the text
@@ -41,7 +41,6 @@ def draw_text_with_outline(surface, text, font, text_color, outline_color, x, y)
 
     # Draw the actual text on top
     surface.blit(text_surface, (x, y))
-
 
 # Load flame animation frames
 flame_frames = []
@@ -74,7 +73,6 @@ player = {
     "frequency": 0.1,
 }
 
-
 # Function to create a new tree
 def create_tree(word):
     tree = {
@@ -85,21 +83,23 @@ def create_tree(word):
     }
     level_1_state["trees"].append(tree)
 
-
 # Function to create a boss
 def create_boss():
     level_1_state["boss_active"] = True
     level_1_state["boss_paragraph"] = generate_random_paragraph()
     level_1_state["boss_typed"] = ""
-
+    # Stop existing music and start boss music
+    pygame.mixer.music.stop()
+    pygame.mixer.music.load(boss_music_path)
+    pygame.mixer.music.play(-1)
 
 # Function to generate a random paragraph
 def generate_random_paragraph():
     sentences = [
-        "Your retarded",
+        "This is a randomly generated paragraph that the player must type to defeat the boss.",
+        "Another sentence to make the paragraph longer and more challenging.",
     ]
     return " ".join(random.choices(sentences, k=2))
-
 
 # Function to fade in
 def fade_in(window, color=(0, 0, 0)):
@@ -111,7 +111,6 @@ def fade_in(window, color=(0, 0, 0)):
         pygame.display.update()
         pygame.time.delay(10)
 
-
 # Function to fade out
 def fade_out(window, color=(0, 0, 0)):
     fade_surface = pygame.Surface(window.get_size())
@@ -121,7 +120,6 @@ def fade_out(window, color=(0, 0, 0)):
         window.blit(fade_surface, (0, 0))
         pygame.display.update()
         pygame.time.delay(10)
-
 
 # Function to display the death page
 def display_death_page(window, score):
@@ -156,7 +154,6 @@ def display_death_page(window, score):
         window.blit(replay_text, replay_rect.topleft)
         pygame.display.flip()
 
-
 # Function to display the win page
 def display_win_page(window, score):
     fade_in(window)
@@ -190,7 +187,6 @@ def display_win_page(window, score):
         window.blit(replay_text, replay_rect.topleft)
         pygame.display.flip()
 
-
 # Function to wrap text
 def wrap_text(text, font, max_width):
     words = text.split()
@@ -206,14 +202,26 @@ def wrap_text(text, font, max_width):
         lines.append(current_line)
     return lines
 
+# Function to display text
+def display_text(screen, text, position):
+    font = pygame.font.Font(None, 36)
+    lines = wrap_text(text, font, window_size[0] - 60)
+    y = position[1]
+    for line in lines:
+        text_surface = font.render(line, True, (255, 255, 255))
+        screen.blit(text_surface, (position[0], y))
+        y += font.get_height()
 
-# Function to run level 1
 def run_level1():
+    pygame.key.set_repeat(0)
     clock = pygame.time.Clock()
     font = pygame.font.Font(None, 36)
     level_1_state["typed_word"] = ""
     level_1_state["frame_count"] = 0
     level_1_state["show_death_screen"] = False
+    boss_active = False
+    boss_paragraph = generate_random_paragraph()
+    boss_typed = ""
 
     while True:
         for event in pygame.event.get():
@@ -222,15 +230,15 @@ def run_level1():
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_BACKSPACE:
-                    if level_1_state["boss_active"]:
-                        level_1_state["boss_typed"] = level_1_state["boss_typed"][:-1]
+                    if boss_active:
+                        boss_typed = boss_typed[:-1]
                     else:
                         level_1_state["typed_word"] = level_1_state["typed_word"][:-1]
                 elif event.key == pygame.K_RETURN:
-                    if level_1_state["boss_active"]:
-                        if level_1_state["boss_typed"] == level_1_state["boss_paragraph"]:
-                            destroy_sound.play()
+                    if boss_active:
+                        if boss_typed == boss_paragraph:
                             display_win_page(window, level_1_state["score"])
+                            game_state["current_level"] = "level_2"
                             return
                     else:
                         for tree in level_1_state["trees"]:
@@ -239,27 +247,26 @@ def run_level1():
                                 level_1_state["flame_animations"].append({"position": tree["position"], "frame": 0})
                                 level_1_state["trees"].remove(tree)
                                 level_1_state["score"] += 1
-                                if level_1_state["score"] >= 10:  # Check if 10 trees have been killed
+                                if level_1_state["score"] >= 10 and not boss_active:
                                     create_boss()
                                 break
                         level_1_state["typed_word"] = ""
                 else:
-                    if level_1_state["boss_active"]:
-                        level_1_state["boss_typed"] += event.unicode
+                    if boss_active:
+                        boss_typed += event.unicode
                     else:
                         level_1_state["typed_word"] += event.unicode
 
         if level_1_state["show_death_screen"]:
             display_death_page(window, level_1_state["score"])
             fade_out(window)
-            game_state["current_level"] = "final_level"
+            game_state["current_level"] = "level_1"
             level_1_state["trees"].clear()
             for _ in range(5):
                 create_tree(random.choice(words))
             level_1_state["typed_word"] = ""
             level_1_state["lives"] = 3
             level_1_state["score"] = 0
-            level_1_state["boss_active"] = False
             pygame.mixer.music.play(-1)
             level_1_state["show_death_screen"] = False
             continue
@@ -279,7 +286,28 @@ def run_level1():
             ),
         )
 
-        if not level_1_state["boss_active"]:
+        if level_1_state["boss_active"]:
+            boss_position = level_1_state["boss_position"]
+            boss_position[0] -= level_1_state["boss_speed"]
+            if boss_position[0] < player_position_with_offset[0] + student_sprite.get_width() / 2:
+                level_1_state["lives"] = 0
+                display_death_page(window, level_1_state["score"])
+                fade_out(window)
+                game_state["current_level"] = "level_1"
+                level_1_state["trees"].clear()
+                for _ in range(5):
+                    create_tree(random.choice(words))
+                level_1_state["typed_word"] = ""
+                level_1_state["lives"] = 3
+                level_1_state["score"] = 0
+                pygame.mixer.music.play(-1)
+                level_1_state["show_death_screen"] = False
+                continue
+
+            window.blit(boss_sprite, boss_position)
+            display_text(window, level_1_state["boss_paragraph"], (50, 400))
+            display_text(window, boss_typed, (50, 450))
+        else:
             for tree in level_1_state["trees"]:
                 window.blit(
                     tree_sprite,
@@ -300,41 +328,6 @@ def run_level1():
                         pygame.mixer.music.stop()
                         end_sound.play()
                         level_1_state["show_death_screen"] = True
-        else:
-            # Move the boss towards the player
-            boss_x, boss_y = level_1_state["boss_position"]
-            boss_x -= level_1_state["boss_speed"]
-            level_1_state["boss_position"] = [boss_x, boss_y]
-
-            window.blit(
-                boss_sprite,
-                (
-                    boss_x - boss_sprite.get_width() / 2,
-                    boss_y - boss_sprite.get_height() / 2,
-                ),
-            )
-
-            # Check if the boss collides with the player
-            if boss_x < player["position"][0] + student_sprite.get_width() / 2:
-                level_1_state["lives"] = 0
-                pygame.mixer.music.stop()
-                end_sound.play()
-                level_1_state["show_death_screen"] = True
-
-            # Wrap and render the boss paragraph text
-            wrapped_paragraph = wrap_text(level_1_state["boss_paragraph"], font, window_size[0] - 100)
-            y_offset = window_size[1] // 2 + 50
-            for line in wrapped_paragraph:
-                draw_text_with_outline(window, line, font, (255, 255, 255), (0, 0, 0), 50, y_offset)
-                y_offset += font.get_height()
-
-            # Render the typed text
-            wrapped_typed = wrap_text(level_1_state["boss_typed"], font, window_size[0] - 100)
-            y_offset = window_size[1] // 2 + 150
-            for line in wrapped_typed:
-                typed_text = font.render(line, True, (255, 255, 255))
-                window.blit(typed_text, (50, y_offset))
-                y_offset += font.get_height()
 
         for animation in level_1_state["flame_animations"][:]:
             frame = animation["frame"]
@@ -361,7 +354,7 @@ def run_level1():
 
         pygame.display.flip()
 
-        if random.randint(1, 200) > 195 and not level_1_state["boss_active"]:
+        if not boss_active and random.randint(1, 200) > 195:
             new_word = random.choice(words)
             create_tree(new_word)
 
