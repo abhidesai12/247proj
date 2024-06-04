@@ -69,7 +69,7 @@ def display_scrolling_text(window, lines, font, color, speed, logo):
 # Function to run the intro level
 def run_intro():
     font = pygame.font.Font(None, 36)
-    intro_text = "Welcome to Cardinal Conquest! Your journey begins here! Use spacebar to make your way through the game."
+    intro_text = "Welcome to Cardinal Conquest! Your journey begins here! Use the right arrow to make your way through the game."
     lines = wrap_text(intro_text, font, window_size[0] - 40)
     display_scrolling_text(window, lines, font, (255, 255, 255), 2, logo_image)
     lore_state["intro_shown"] = True

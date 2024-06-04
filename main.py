@@ -59,21 +59,21 @@ font = pygame.font.Font(None, 36)
 # Cutscene dialogues and settings
 cutscenes = {
     "intro_1": [
-        {"bg": "lab", "character": "Player", "text": "I did it! I finished my research on treeification, the process of transforming trees into sentient beings which we can control. Using this, we can help humanity have more trees!"},
-        {"bg": "lab", "character": "MTL", "text": "You mean MY research. With this, I will master the art of treeification and use the trees of campus to take over the lands. No one can stop me now! Mwahahahahaha!"},
+        {"bg": "lab", "character": "Player", "text": "I did it! I finished my research on treeification, the process of transforming trees into sentient beings which we can control. Using this, we can help humanity have more trees. Plants are people too!"},
+        {"bg": "lab", "character": "MTL", "text": "You mean MY research. With this, I will master the art of treeification and turn the Stanford Community into mindless trees I control. I'll take over the school and take back the Presidency. No one can stop me now! Mwahahahahaha!"},
         {"bg": "lab", "character": "Player", "text": "Hey! That's my life's work! Come back!"},
         {"bg": "lab", "character": "Player", "text": "He's heading to Green! I can't let him get away with this."}
     ],
     "intro_2": [
         {"bg": "green", "character": "Narrator", "text": "I made it to Green! Looks like this place is crawling with his librarian henchmen though… To make it through, I need to defend myself and defeat his minions"},
         {"bg": "green", "character": "Player", "text": "There he goes! I can't lose him now."},
-        {"bg": "green", "character": "Instructions", "text": "Use spacebar to shoot and arrow keys to navigate!"}
+        {"bg": "green", "character": "Instructions", "text": "Aim with your mouse, click to shoot, and use WASD keys to navigate!"}
     ],
     "intro_3": [
         {"bg": "frat_house", "character": "Frat Guy", "text": "Hey! Where do you think you’re going? Do you have a wristband? This party is invite-only!"},
         {"bg": "frat_house", "character": "Narrator", "text": "I’ve gotta make it past all these frat bros without getting caught. If I’m found, who knows what they’ll do to me."},
         {"bg": "frat_house", "character": "Player", "text": "He's leaving the party. This might be my chance to catch up!"},
-        {"bg": "frat_house", "character": "Instructions", "text": "Use arrow keys to navigate through the frat house!"}
+        {"bg": "frat_house", "character": "Instructions", "text": "Use WASD keys to navigate through the frat house!"}
     ],
     "intro_4": [
         {"bg": "dish", "character": "Player", "text": "To the Main Quad, he must be heading towards the central lab!"},
@@ -112,7 +112,7 @@ def play_cutscene(cutscene_key):
     cutscene = cutscenes[cutscene_key]
     index = 0
     mtl_transformed = False
-    space_pressed = False
+    right_arrow_pressed = False
 
     while index < len(cutscene):
         for event in pygame.event.get():
@@ -120,12 +120,12 @@ def play_cutscene(cutscene_key):
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and not space_pressed:
+                if event.key == pygame.K_RIGHT and not right_arrow_pressed:
                     index += 1
-                    space_pressed = True
+                    right_arrow_pressed = True
             elif event.type == pygame.KEYUP:
-                if event.key == pygame.K_SPACE:
-                    space_pressed = False
+                if event.key == pygame.K_RIGHT:
+                    right_arrow_pressed = False
 
         if index >= len(cutscene):
             break
@@ -158,7 +158,7 @@ def main():
     while True:
         current_level = game_state.get("current_level")
         if current_level == "intro":
-            run_level3()
+            run_level1()
             run_intro()
             play_cutscene("intro_1")
             game_state["current_level"] = "level_2"
