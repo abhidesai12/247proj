@@ -64,6 +64,7 @@ level_1_state = {
     "boss_typed": "",
     "boss_position": [800, 275],  # Initial boss position
     "boss_speed": 1.0,  # Boss movement speed
+    "boss_dialogue_shown": False
 }
 
 # Define player attributes
@@ -89,6 +90,7 @@ def create_boss():
     level_1_state["boss_active"] = True
     level_1_state["boss_paragraph"] = generate_random_paragraph()
     level_1_state["boss_typed"] = ""
+    level_1_state["boss_dialogue_shown"] = False  # Reset dialogue shown flag
     # Stop existing music and start boss music
     pygame.mixer.music.stop()
     pygame.mixer.music.load(boss_music_path)
@@ -97,7 +99,7 @@ def create_boss():
 # Function to generate a random paragraph
 def generate_random_paragraph():
     sentences = [
-        "Hello world"
+        "I AM GOING TO DEFEAT YOU!"
     ]
     return " ".join(random.choices(sentences, k=1))
 
@@ -180,7 +182,11 @@ def display_win_page(window, score):
                 window_size[1] // 2 - win_text.get_height() - 75 // 2,
             ),
         )
- 
+        window.blit(
+            score_text,
+            (window_size[0] // 2 - score_text.get_width() // 2, window_size[1] // 2),
+        )
+        window.blit(replay_text, replay_rect.topleft)
         pygame.display.flip()
 
 # Function to wrap text
@@ -206,6 +212,19 @@ def display_text(screen, text, position):
     for line in lines:
         text_surface = font.render(line, True, (255, 255, 255))
         screen.blit(text_surface, (position[0], y))
+        y += font.get_height()
+
+# Function to display the boss dialogue
+def display_boss_dialogue(screen, text):
+    font = pygame.font.Font(None, 28)
+    lines = wrap_text(text, font, 200)  # Adjust width for the smaller box
+    dialogue_box = pygame.Rect(550, 150, 200, 100)  # Smaller box on the right side
+    pygame.draw.rect(screen, (0, 0, 0), dialogue_box)
+    pygame.draw.rect(screen, (255, 255, 255), dialogue_box, 2)
+    y = dialogue_box.y + 10
+    for line in lines:
+        text_surface = font.render(line, True, (255, 255, 255))
+        screen.blit(text_surface, (dialogue_box.x + 10, y))
         y += font.get_height()
 
 def run_level1():
@@ -309,6 +328,13 @@ def run_level1():
             window.blit(boss_sprite, boss_position)
             display_text(window, level_1_state["boss_paragraph"], (50, 400))
             display_text(window, level_1_state["boss_typed"], (50, 450))
+
+            if not level_1_state["boss_dialogue_shown"]:
+                display_boss_dialogue(window, "Prepare to be defeated!")
+                level_1_state["boss_dialogue_shown"] = True
+                pygame.display.flip()
+                pygame.time.delay(2000)  # Show the dialogue for 2 seconds
+
         else:
             for tree in level_1_state["trees"]:
                 window.blit(
