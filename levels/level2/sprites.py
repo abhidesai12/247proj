@@ -76,8 +76,8 @@ class Player(pg.sprite.Sprite):
             now = pg.time.get_ticks()
             if now - self.last_shot > self.shoot_cooldown:
                 self.last_shot = now
-                mouse_pos = pg.mouse.get_pos()
-                direction = vec(mouse_pos[0] - self.pos.x, mouse_pos[1] - self.pos.y).normalize()
+                mouse_pos = vec(pg.mouse.get_pos())
+                direction = (mouse_pos - self.pos).normalize()
                 Bullet(self.game, self.pos, direction)
 
     def update(self):
@@ -237,19 +237,16 @@ class Mob3(pg.sprite.Sprite):
 class Bullet(pg.sprite.Sprite):
     """The Bullet class: the bullets for the gun."""
 
-    def __init__(self, game, pos, dir):
+    def __init__(self, game, pos, direction):
         """Initialize a bullet and its attributes."""
         self.groups = game.all_sprites, game.bullets
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.image = game.bullet_img
-        self.orig_image = self.image
         self.rect = self.image.get_rect()
         self.pos = vec(pos)
         self.rect.center = pos
-        self.hit_rect = self.rect
-        spread = uniform(-GUN_SPREAD, GUN_SPREAD)
-        self.vel = dir.rotate(spread) * BULLET_SPEED
+        self.vel = direction * BULLET_SPEED
         self.spawn_time = pg.time.get_ticks()
 
     def update(self):

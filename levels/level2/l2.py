@@ -41,6 +41,9 @@ class Game:
         self.clock = pg.time.Clock()
         pg.key.set_repeat(30, 30)
         self.load_data()
+        self.spawn_rate = 5000  # Initial spawn rate in milliseconds
+        self.last_spawn_time = pg.time.get_ticks()
+        self.start_time = pg.time.get_ticks()
 
     def load_data(self):
         """Loads data from file, such as images, sounds, etc."""
@@ -131,15 +134,19 @@ class Game:
             self.destroy_sound.play()  # Play destroy sound
             self.player.zombies_killed += 1  # Increase kill count
 
-            # Check if 10 zombies have been killed to move to Level 3
-            if self.player.zombies_killed >= 10:
-                game_state["current_level"] = "level_3"
-                self.playing = False
-                return
-
-        # Ensure a constant number of mobs are always present
-        while len(self.mobs) < 10:
+        # Ensure a constant number of mobs are always present and progressively increase difficulty
+        current_time = pg.time.get_ticks()
+        if current_time - self.start_time > 300000:  # 5 minutes
+            self.spawn_rate = 500  # Maximum spawn rate
+        elif current_time - self.last_spawn_time > self.spawn_rate:
             self.spawn_mob()
+            self.last_spawn_time = current_time
+            self.spawn_rate = max(4000, self.spawn_rate - 10)  # Gradually decrease spawn rate
+
+        # Check if the player can progress to the next level
+        if self.player.zombies_killed >= 20:
+            game_state["current_level"] = "level_3"
+            self.playing = False
 
     def draw(self):
         """Draws things on the screen."""
@@ -151,8 +158,6 @@ class Game:
 
         mouse = FONT.render("Librarians alive: " + str(len(self.mobs)), True, RED)
         self.screen.blit(mouse, (10, 30))
-
-
 
         for i in range(self.lives):
             self.screen.blit(self.heart_img, (10 + i * 40, 50))
@@ -200,10 +205,6 @@ class Game:
                     WIDTH // 2 - death_text.get_width() // 2,
                     HEIGHT // 2 - death_text.get_height() - 75 // 2,
                 ),
-            )
-            self.screen.blit(
-                score_text,
-                (WIDTH // 2 - score_text.get_width() // 2, HEIGHT // 2),
             )
             self.screen.blit(replay_text, replay_rect.topleft)
             pg.display.flip()

@@ -160,7 +160,7 @@ def run_level3():
                 lives -= 1
                 if lives <= 0:
                     show_death_screen()
-                    game_state["current_level"] = "intro"
+                    game_state["current_level"] = "level_3"  # Ensure level 3 is set correctly
                     is_running = False
                     return
 
@@ -200,6 +200,8 @@ def run_level3():
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         if replay_rect.collidepoint(event.pos):
+                            game_state["current_level"] = "level_3"  # Ensure level 3 is set correctly
+                            run_level3()
                             return  # Exit the death screen to restart the game
 
                 screen.fill((0, 0, 0))

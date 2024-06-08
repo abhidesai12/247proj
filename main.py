@@ -70,7 +70,7 @@ cutscenes = {
         {"bg": "green", "character": "Player", "text": "Green is swarming with MTL's new recruits, blending in as students. To reach MTL, I'll need to sneak past or confront his minions."}
     ],
     "intro_3": [
-        {"bg": "frat_house", "character": "Player", "text": "There he is, slipping away! If I don't catch him soon, his plan will sprout across campus. I think I saw him headed towards the row… I know there’s a party going on there, but I’m sure it’ll be fine to just walk on by."},
+        {"bg": "frat_house", "character": "Player", "text": "I made it out alive! There he is, slipping away! If I don't catch him soon, his plan will sprout across campus. I think I saw him headed towards the row… I know there’s a party going on there, but I’m sure it’ll be fine to just walk on by."},
         {"bg": "frat_house", "character": "Frat Guard", "text": "Whoa there, you need a wristband. This party's roots are deep and exclusive!"},
         {"bg": "frat_house", "character": "Player", "text": "I just need to... prune some information. Let me through, please?"},
         {"bg": "frat_house", "character": "Frat Guard Leaves", "text": ""},
