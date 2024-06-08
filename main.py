@@ -44,7 +44,8 @@ backgrounds = {
     "lab": pygame.image.load('assets/backgrounds/background_lab.png'),
     "green": pygame.image.load('assets/backgrounds/background_green.png'),
     "frat_house": pygame.image.load('assets/backgrounds/background_frat_house.png'),
-    "dish": pygame.image.load('assets/backgrounds/background_dish.png')
+    "dish": pygame.image.load('assets/backgrounds/background_dish.png'),
+    "confetti": pygame.image.load('assets/backgrounds/background_confetti.png')
 }
 
 # Load and scale character images
@@ -59,29 +60,34 @@ font = pygame.font.Font(None, 36)
 # Cutscene dialogues and settings
 cutscenes = {
     "intro_1": [
-        {"bg": "lab", "character": "Player", "text": "I did it! I finished my research on treeification, the process of transforming trees into sentient beings which we can control. Using this, we can help humanity have more trees. Plants are people too!"},
-        {"bg": "lab", "character": "MTL", "text": "You mean MY research. With this, I will master the art of treeification and turn the Stanford Community into mindless trees I control. I'll take over the school and take back the Presidency. No one can stop me now! Mwahahahahaha!"},
-        {"bg": "lab", "character": "Player", "text": "Hey! That's my life's work! Come back!"},
-        {"bg": "lab", "character": "Player", "text": "He's heading to Green! I can't let him get away with this."}
+        {"bg": "lab", "character": "Player", "text": "I did it! After years of research on treeification, I've finally found a way to make trees sentient! This could change urban planning forever—imagine cities designed by the very trees that inhabit them!"},
+        {"bg": "lab", "character": "MTL", "text": "Brilliant work! And it's all I need to grow my empire. These trees will be the root of my rule across the land. The seeds of my conquest are now planted!"},
+        {"bg": "lab", "character": "MTL Leaves", "text": ""},
+        {"bg": "lab", "character": "Player", "text": "That’s my life's work you're twisting! It's meant for peace, not power! Come back with my tree-tise!"},
+        {"bg": "lab", "character": "Player", "text": "He's heading towards Green library! He must be planning to gather followers for his scheme. I need to stop him before it takes root."}
     ],
     "intro_2": [
-        {"bg": "green", "character": "Narrator", "text": "I made it to Green! Looks like this place is crawling with his librarian henchmen though… To make it through, I need to defend myself and defeat his minions"},
-        {"bg": "green", "character": "Player", "text": "There he goes! I can't lose him now."},
-        {"bg": "green", "character": "Instructions", "text": "Aim with your mouse, click to shoot, and use WASD keys to navigate!"}
+        {"bg": "green", "character": "Player", "text": "Green is swarming with MTL's new recruits, blending in as students. To reach MTL, I'll need to sneak past or confront his minions."}
     ],
     "intro_3": [
-        {"bg": "frat_house", "character": "Frat Guy", "text": "Hey! Where do you think you’re going? Do you have a wristband? This party is invite-only!"},
-        {"bg": "frat_house", "character": "Narrator", "text": "I’ve gotta make it past all these frat bros without getting caught. If I’m found, who knows what they’ll do to me."},
-        {"bg": "frat_house", "character": "Player", "text": "He's leaving the party. This might be my chance to catch up!"},
-        {"bg": "frat_house", "character": "Instructions", "text": "Use WASD keys to navigate through the frat house!"}
+        {"bg": "frat_house", "character": "Player", "text": "There he is, slipping away! If I don't catch him soon, his plan will sprout across campus. I think I saw him headed towards the row… I know there’s a party going on there, but I’m sure it’ll be fine to just walk on by."},
+        {"bg": "frat_house", "character": "Frat Guard", "text": "Whoa there, you need a wristband. This party's roots are deep and exclusive!"},
+        {"bg": "frat_house", "character": "Player", "text": "I just need to... prune some information. Let me through, please?"},
+        {"bg": "frat_house", "character": "Frat Guard Leaves", "text": ""},
+        {"bg": "frat_house", "character": "Player", "text": "This frat house is a maze of partygoers. I need to navigate this thicket without drawing attention."},
+        {"bg": "frat_house", "character": "Player", "text": "MTL's leaving already? He must be heading to his next spot to further his plans. Can't let him go!"}
     ],
     "intro_4": [
-        {"bg": "dish", "character": "Player", "text": "To the Main Quad, he must be heading towards the central lab!"},
-        {"bg": "dish", "character": "MTL", "text": "Hahahaha! Too slow! I've already started the treeification process. Your research is mine!"},
-        {"bg": "dish", "character": "Narrator", "text": "Type the Stanford slang words as fast as you can to disrupt MTL's process!"},
-        {"bg": "dish", "character": "Player", "text": "MTL! It’s time for you to give me back my research!"},
-        {"bg": "dish", "character": "MTL", "text": "Fine! The hard way it is! You leave me no choice but to treeify myself and take you down personally!", "transform": True},
-        {"bg": "dish", "character": "Instructions", "text": "Type to destroy the evil trees and beware of M-Tree-L!"}
+        {"bg": "dish", "character": "Player", "text": "The Dish! He's going there to amplify his control over the treeified beings with its powerful antennas. This is where he'll seed his new world unless I stop him!"},
+        {"bg": "dish", "character": "MTL", "text": "You're just in time to watch the birth of my empire. Soon, the entire campus will flourish under my canopy!"},
+        {"bg": "dish", "character": "MTL Using Dish", "text": ""},
+        {"bg": "dish", "character": "Player", "text": "To counteract the signal, I need to overload the system with everything Stanford. Yelling our slang might just do the trick!"},
+        {"bg": "dish", "character": "Narrator", "text": "It's time to type up a storm! Disrupt his control by flooding the network with Stanford spirit!"},
+        {"bg": "dish", "character": "Player", "text": "This is your last chance, MTL. Return what you stole or brace yourself for a fall!"},
+        {"bg": "dish", "character": "MTL", "text": "Prepare yourself! I've grafted myself with treeification technology. You're about to face the full force of nature!", "transform": True}
+    ],
+    "celebration": [
+        {"bg": "confetti", "character": "Narrator", "text": "With MTL's defeat, the trees are liberated from his control. Peace and natural growth will once again define our campus landscape. The true potential of treeification can now be explored safely.", "no_characters": True}
     ]
 }
 
@@ -113,6 +119,7 @@ def play_cutscene(cutscene_key):
     index = 0
     mtl_transformed = False
     right_arrow_pressed = False
+    mtl_x_pos = 650
 
     while index < len(cutscene):
         for event in pygame.event.get():
@@ -142,12 +149,27 @@ def play_cutscene(cutscene_key):
         if "transform" in scene and scene["transform"]:
             mtl_transformed = True
 
+        # Move MTL sprite off-screen if needed
+        if scene["character"] == "MTL Leaves":
+            while mtl_x_pos < WIDTH:
+                mtl_x_pos += 5
+                screen.fill(WHITE)
+                screen.blit(bg_image, (0, 0))
+                screen.blit(player_image, (50, 250))
+                display_text(screen, f'{scene["character"]}: {scene["text"]}', (40, 430))
+                pygame.display.flip()
+                clock.tick(30)
+            continue  # Skip further rendering for this scene
+
         # Display characters
-        screen.blit(player_image, (50, 250))
-        if scene["character"] == "Frat Guy":
-            screen.blit(frat_guy_image, (650, 250))
+        if scene.get("no_characters"):
+            pass
         else:
-            screen.blit(mtl_monster_image if mtl_transformed else mtl_image, (650, 250))
+            screen.blit(player_image, (50, 250))
+            if scene["character"] == "Frat Guard":
+                screen.blit(frat_guy_image, (mtl_x_pos, 250))
+            else:
+                screen.blit(mtl_monster_image if mtl_transformed else mtl_image, (mtl_x_pos, 250))
 
         display_text(screen, f'{scene["character"]}: {scene["text"]}', (40, 430))
 
@@ -172,8 +194,9 @@ def main():
         elif current_level == "level_1":
             play_cutscene("intro_4")
             run_level1()
-            game_state["current_level"] = "level_end"
-        elif current_level == "level_end":
+            game_state["current_level"] = "celebration"
+        elif current_level == "celebration":
+            play_cutscene("celebration")
             print("Game Over")
             break
         else:
