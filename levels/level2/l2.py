@@ -144,7 +144,7 @@ class Game:
             self.spawn_rate = max(4000, self.spawn_rate - 10)  # Gradually decrease spawn rate
 
         # Check if the player can progress to the next level
-        if self.player.zombies_killed >= 20:
+        if self.player.zombies_killed >= 25:
             game_state["current_level"] = "level_3"
             self.playing = False
 
