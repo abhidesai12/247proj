@@ -66,7 +66,7 @@ level_1_state = {
     "boss_speed": 1.0,  # Boss movement speed
     "boss_dialogue_shown": False,
     "trees_destroyed": 0,
-    "wave": 1
+    "spawn_rate": 1000  # Initial spawn rate (in milliseconds)
 }
 
 # Define player attributes
@@ -239,6 +239,9 @@ def run_level1():
         new_word = random.choice(words)
         create_tree(new_word, 0.1)
 
+    # Initialize spawn timer
+    last_spawn_time = pygame.time.get_ticks()
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -259,8 +262,8 @@ def run_level1():
                             pygame.mixer.music.stop()
                             pygame.mixer.music.load(background_music_path)
                             pygame.mixer.music.play(-1)
-                            display_win_page(window, level_1_state["score"])
-                            game_state["current_level"] = "level_2"
+                            #display_win_page(window, level_1_state["score"])
+                            #game_state["current_level"] = "level_2"
                             return
                     else:
                         for tree in level_1_state["trees"]:
@@ -386,30 +389,16 @@ def run_level1():
 
         pygame.display.flip()
 
-        if level_1_state["wave"] == 1 and random.randint(1, 200) > 198:
+        # Incremental scaling for tree spawn rate
+        current_time = pygame.time.get_ticks()
+        if current_time - last_spawn_time > level_1_state["spawn_rate"]:
             new_word = random.choice(words)
-            create_tree(new_word, 0.8)
-            if level_1_state["trees_destroyed"] >= 10:
-                level_1_state["wave"] = 2
-        elif level_1_state["wave"] == 2 and random.randint(1, 200) > 196:
-            new_word = random.choice(words)
-            create_tree(new_word, 0.9)
-            if level_1_state["trees_destroyed"] >= 20:
-                level_1_state["wave"] = 3
-        elif level_1_state["wave"] == 3 and random.randint(1, 200) > 194:
-            new_word = random.choice(words)
-            create_tree(new_word, 1.0)
-            if level_1_state["trees_destroyed"] >= 30:
-                level_1_state["wave"] = 4
-        elif level_1_state["wave"] == 4 and random.randint(1, 200) > 192:
-            new_word = random.choice(words)
-            create_tree(new_word, 1.1)
-            if level_1_state["trees_destroyed"] >= 40:
-                create_boss()
-                level_1_state["wave"] = 5
-        elif level_1_state["wave"] == 5 and random.randint(1, 200) > 190:
-            new_word = random.choice(words)
-            create_tree(new_word, 1.2)
+            speed = .9 + (level_1_state["frame_count"] / 20000)  # Gradual increase in speed 6000 or 60000
+            create_tree(new_word, speed)
+            last_spawn_time = current_time
+
+        level_1_state["spawn_rate"] = max(2000, level_1_state["spawn_rate"] - 0.001)  # Gradually decrease spawn rate, but not lower than 500ms, could change 700
 
         level_1_state["frame_count"] += 1
         clock.tick(30)
+
