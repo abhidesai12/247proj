@@ -1,4 +1,5 @@
 import pygame
+import sys
 from levels.level3.player import Player
 from levels.level3.enemy import Enemy
 from levels.level3.field import Field
@@ -60,6 +61,73 @@ def run_level3():
     FIELD_HEIGHT = 500
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+    # Load images for player animation
+    walk1_img = pygame.image.load("./images/walk1.png")
+    walk2_img = pygame.image.load("./images/walk2.png")
+
+    class Player:
+        def __init__(self, x, y, field_x, field_y, field_width, field_height, width=50, height=50, vel=5, color=(0, 255, 0), deaths=0):
+            self.start_x = x
+            self.start_y = y
+            self.x = x
+            self.y = y
+            self.width = width
+            self.height = height
+            self.vel = vel
+            self.color = color
+            self.deaths = deaths
+            self.field_x = field_x
+            self.field_y = field_y
+            self.field_width = field_width
+            self.field_height = field_height
+
+            # Load sprites for animation
+            self.walk1_img = pygame.transform.scale(walk1_img, (self.width, self.height))
+            self.walk2_img = pygame.transform.scale(walk2_img, (self.width, self.height))
+            self.current_image = self.walk1_img
+            self.walking = False
+            self.walk_count = 0
+            self.facing_left = False
+
+        def move(self, keys):
+            self.walking = False
+            if keys[pygame.K_a] and self.x > self.field_x + self.width:
+                self.x -= self.vel
+                self.walking = True
+                self.facing_left = True
+            if keys[pygame.K_d] and self.x < self.field_x + self.field_width - self.width:
+                self.x += self.vel
+                self.walking = True
+                self.facing_left = False
+            if keys[pygame.K_s] and self.y < self.field_y + self.field_height - self.height:
+                self.y += self.vel
+                self.walking = True
+            if keys[pygame.K_w] and self.y > self.field_y + self.height:
+                self.y -= self.vel
+                self.walking = True
+
+        def update(self):
+            if self.walking:
+                self.walk_count = (self.walk_count + 1) % 20  # Adjust this value to change the animation speed
+                if self.walk_count < 10:
+                    self.current_image = self.walk1_img
+                else:
+                    self.current_image = self.walk2_img
+
+                # Flip the image based on the direction
+                if self.facing_left:
+                    self.current_image = pygame.transform.flip(self.current_image, True, False)
+            else:
+                self.current_image = self.walk1_img
+
+        def draw(self, screen):
+            self.update()
+            return screen.blit(self.current_image, (self.x, self.y))
+
+        def reset(self):
+            self.x = self.start_x
+            self.y = self.start_y
 
     def play_level(speed_multiplier, background_image, base_color, music_path=None):
         if music_path:

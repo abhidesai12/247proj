@@ -59,14 +59,12 @@ MOB_HIT_RECT = pg.Rect(0, 0, 30, 30)
 MOB_DAMAGE = 10
 MOB_KNOCKBACK = 20
 AVOID_RADIUS = 50
-# BLOOD = 'blood.png'
 
 # FONT
 FONT = pg.font.SysFont("None", 25)
 FONT2 = pg.font.SysFont("None", 60)
-# FONT2 = pg.font.
 
 # IMAGES
-BG = pg.image.load("levels/level2/img/thefloor.png")
-BG2 = pg.image.load("levels/level2/img/wall2.jpg")
-BACKGROUND = pg.image.load("levels/level2/img/grass.jpg")
+BG = pg.image.load("levels/level2/img/floor.png")
+BG2 = pg.image.load("levels/level2/img/floor.png")
+BACKGROUND = pg.image.load("levels/level2/img/back.jpg")

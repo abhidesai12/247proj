@@ -1,5 +1,4 @@
 import pygame
-import math
 
 class Player:
     def __init__(
@@ -30,19 +29,44 @@ class Player:
         self.field_width = field_width
         self.field_height = field_height
 
-        # Assign a sprite on init
-        self.sprite = pygame.image.load("./levels/level3/player.png")
-        self.sprite = pygame.transform.scale(self.sprite, (self.width, self.height))
+        # Assign sprites on init
+        self.walk1_img = pygame.image.load("./images/walk1.png")
+        self.walk2_img = pygame.image.load("./images/walk2.png")
+        self.sprite = self.walk1_img
+        self.last_update = 0
+        self.current_frame = 0
+        self.facing_left = False
 
     def move(self, keys):
+        moving = False
         if keys[pygame.K_a] and self.x > self.field_x + self.width:
             self.x -= self.vel
-        if keys[pygame.K_d] and self.x < self.field_x + self.field_width - self.width:
+            self.facing_left = True
+            moving = True
+        elif keys[pygame.K_d] and self.x < self.field_x + self.field_width - self.width:
             self.x += self.vel
-        if keys[pygame.K_s] and self.y < self.field_y + self.field_height - self.height:
+            self.facing_left = False
+            moving = True
+        elif keys[pygame.K_s] and self.y < self.field_y + self.field_height - self.height:
             self.y += self.vel
-        if keys[pygame.K_w] and self.y > self.field_y + self.height:
+            moving = True
+        elif keys[pygame.K_w] and self.y > self.field_y + self.height:
             self.y -= self.vel
+            moving = True
+
+        # Animate the player
+        if moving:
+            now = pygame.time.get_ticks()
+            if now - self.last_update > 200:  # Change frame every 200 ms
+                self.last_update = now
+                self.current_frame = (self.current_frame + 1) % 2
+                if self.current_frame == 0:
+                    self.sprite = self.walk1_img
+                else:
+                    self.sprite = self.walk2_img
+
+            if self.facing_left:  # Moving left
+                self.sprite = pygame.transform.flip(self.sprite, True, False)
 
     def draw(self, screen):
         # Draw the sprite

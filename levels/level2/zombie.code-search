@@ -1,0 +1,57 @@
+# Query: zombie
+# ContextLines: 1
+
+14 results - 3 files
+
+levels/level2/l2.py:
+   77          self.player = Player(self, 0, 0)  # Instantiate the player
+   78:         self.player.librarians_killed = 0  # Reset librarians killed count
+   79          self.lives = 3  # Number of lives/hearts
+
+  136              self.destroy_sound.play()  # Play destroy sound
+  137:             self.player.librarians_killed += 1  # Increase kill count
+  138  
+
+  148          # Check if the player can progress to the next level
+  149:         if self.player.librarians_killed >= 25:
+  150              game_state["current_level"] = "level_3"
+
+  160  
+  161:         mouse = FONT.render("Librarians killed: " + str(self.player.librarians_killed), True, RED)
+  162          self.screen.blit(mouse, (10, 30))
+
+  189          death_text = font.render("You Died", True, (255, 0, 0))
+  190:         score_text = font.render(f"Score: {self.player.librarians_killed}", True, (255, 255, 255))
+  191          replay_text = font.render("Replay Game", True, (255, 255, 255))
+
+levels/level2/settings.py:
+  34  PLAYER_HIT_RECT = pg.Rect(0, 0, 32, 32)
+  35: ZOMBIES_KILLED = 0
+  36  
+
+levels/level2/sprites.py:
+   55          self.hp = PLAYER_HP
+   56:         self.librarians_killed = 0
+   57          self.shoot_cooldown = 500  # Cooldown time in milliseconds
+
+  137  class Mob(pg.sprite.Sprite):
+  138:     """The Mob class: the mobs that chase after the player (librarian)."""
+  139  
+
+  177              self.kill()
+  178:             self.game.player.librarians_killed += 1
+  179  
+  180  class Mob2(pg.sprite.Sprite):
+  181:     """The Mob2 class: the mobs that chase after the player (librarian)."""
+  182  
+
+  217              self.kill()
+  218:             self.game.player.librarians_killed += 1
+  219  
+  220  class Mob3(pg.sprite.Sprite):
+  221:     """The Mob3 class: the mobs that chase after the player (librarian)."""
+  222  
+
+  257              self.kill()
+  258:             self.game.player.librarians_killed += 1
+  259  

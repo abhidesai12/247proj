@@ -2,7 +2,7 @@ import pygame as pg
 import math
 from random import uniform, choice
 from .settings import *
-from .tilemap import collide_hit_rect
+from .tmap import collide_hit_rect
 
 vec = pg.math.Vector2
 
@@ -41,7 +41,9 @@ class Player(pg.sprite.Sprite):
         self.groups = game.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = game.player_img
+        self.walk1_img = game.walk1_img
+        self.walk2_img = game.walk2_img
+        self.image = self.walk1_img
         self.orig_image = self.image
         self.rect = self.image.get_rect()
         self.rect.center = vec(x, y)
@@ -51,8 +53,10 @@ class Player(pg.sprite.Sprite):
         self.pos = vec(x, y) * TILESIZE
         self.last_shot = 0
         self.hp = PLAYER_HP
-        self.zombies_killed = 0
+        self.librarians_killed = 0
         self.shoot_cooldown = 500  # Cooldown time in milliseconds
+        self.last_update = 0
+        self.current_frame = 0
 
     def get_keys(self):
         """Gets keyboard inputs and moves the player according to that."""
@@ -76,8 +80,8 @@ class Player(pg.sprite.Sprite):
             now = pg.time.get_ticks()
             if now - self.last_shot > self.shoot_cooldown:
                 self.last_shot = now
-                mouse_pos = vec(pg.mouse.get_pos())
-                direction = (mouse_pos - self.pos).normalize()
+                mouse_pos = pg.mouse.get_pos()
+                direction = vec(mouse_pos[0] - self.pos.x, mouse_pos[1] - self.pos.y).normalize()
                 Bullet(self.game, self.pos, direction)
 
     def update(self):
@@ -90,6 +94,25 @@ class Player(pg.sprite.Sprite):
         self.hit_rect.centery = self.pos.y
         sprite_collision(self, self.game.walls, 'y')
         self.rect.center = self.hit_rect.center
+
+        # Animate the player
+        now = pg.time.get_ticks()
+        if now - self.last_update > 200:  # Change frame every 200 ms
+            self.last_update = now
+            self.current_frame = (self.current_frame + 1) % 2
+            if self.current_frame == 0:
+                self.image = self.walk1_img
+            else:
+                self.image = self.walk2_img
+
+            if self.vel.x < 0:  # Moving left
+                self.image = pg.transform.flip(self.image, True, False)
+            elif self.vel.x > 0:  # Moving right
+                self.image = self.image
+            self.rect = self.image.get_rect()
+            self.rect.center = self.hit_rect.center
+
+
 
 
 def avoid_mobs(sprite):
@@ -112,7 +135,7 @@ def draw_hp(sprite):
         pg.draw.rect(sprite.image, color, sprite.hp_bar)
 
 class Mob(pg.sprite.Sprite):
-    """The Mob class: the mobs that chase after the player (zombie)."""
+    """The Mob class: the mobs that chase after the player (librarians)."""
 
     def __init__(self, game, x, y):
         """Initialize a Mob and its attributes."""
@@ -152,10 +175,10 @@ class Mob(pg.sprite.Sprite):
         draw_hp(self)
         if self.hp <= 0:
             self.kill()
-            self.game.player.zombies_killed += 1
+            self.game.player.librarians_killed += 1
 
 class Mob2(pg.sprite.Sprite):
-    """The Mob2 class: the mobs that chase after the player (zombie)."""
+    """The Mob2 class: the mobs that chase after the player (librarians)."""
 
     def __init__(self, game, x, y):
         """Initialize a Mob2 and its attributes."""
@@ -192,10 +215,10 @@ class Mob2(pg.sprite.Sprite):
         draw_hp(self)
         if self.hp <= 0:
             self.kill()
-            self.game.player.zombies_killed += 1
+            self.game.player.librarians_killed += 1
 
 class Mob3(pg.sprite.Sprite):
-    """The Mob3 class: the mobs that chase after the player (zombie)."""
+    """The Mob3 class: the mobs that chase after the player (librarians)."""
 
     def __init__(self, game, x, y):
         """Initialize a Mob3 and its attributes."""
@@ -232,7 +255,7 @@ class Mob3(pg.sprite.Sprite):
         draw_hp(self)
         if self.hp <= 0:
             self.kill()
-            self.game.player.zombies_killed += 1
+            self.game.player.librarians_killed += 1
 
 class Bullet(pg.sprite.Sprite):
     """The Bullet class: the bullets for the gun."""

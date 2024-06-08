@@ -4,7 +4,7 @@ import random
 from os import path
 from .settings import *
 from .sprites import *
-from .tilemap import *
+from .tmap import *
 from .gui import *
 from time import sleep
 from random import randint, randrange, uniform
@@ -51,7 +51,8 @@ class Game:
         img_folder = path.join(game_folder, 'img')
         sound_folder = path.join(path.dirname(game_folder), 'sound')
         self.map = Map(path.join(game_folder, 'map_small.txt'))
-        self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG)).convert_alpha()
+        self.walk1_img = pg.image.load(path.join(img_folder, 'walk1.png')).convert_alpha()
+        self.walk2_img = pg.image.load(path.join(img_folder, 'walk2.png')).convert_alpha()
         self.bullet_img = pg.image.load(path.join(img_folder, BULLET_IMG)).convert_alpha()
         self.mob_img = pg.image.load(path.join(img_folder, MOB_IMG)).convert_alpha()
         self.mob2_img = pg.image.load(path.join(img_folder, MOB_IMG2)).convert_alpha()
@@ -66,6 +67,7 @@ class Game:
         self.end_sound = pg.mixer.Sound("sound/end.mp3")
         self.destroy_sound = pg.mixer.Sound("sound/destroy.wav")
 
+
     def new(self):
         """Initialize all variables and set up for new game."""
         self.all_sprites = pg.sprite.Group()
@@ -73,7 +75,7 @@ class Game:
         self.mobs = pg.sprite.Group()
         self.bullets = pg.sprite.Group()
         self.player = Player(self, 0, 0)  # Instantiate the player
-        self.player.zombies_killed = 0  # Reset zombies killed count
+        self.player.librarians_killed = 0  # Reset librarians killed count
         self.lives = 3  # Number of lives/hearts
         for row, tiles in enumerate(self.map.map_data):
             for col, tile in enumerate(tiles):
@@ -132,7 +134,7 @@ class Game:
             hit.hp = 0  # Set mob health to 0 to kill it immediately
             hit.vel = vec(0, 0)
             self.destroy_sound.play()  # Play destroy sound
-            self.player.zombies_killed += 1  # Increase kill count
+            self.player.librarians_killed += 1  # Increase kill count
 
         # Ensure a constant number of mobs are always present and progressively increase difficulty
         current_time = pg.time.get_ticks()
@@ -144,7 +146,7 @@ class Game:
             self.spawn_rate = max(4000, self.spawn_rate - 10)  # Gradually decrease spawn rate
 
         # Check if the player can progress to the next level
-        if self.player.zombies_killed >= 25:
+        if self.player.librarians_killed >= 25:
             game_state["current_level"] = "level_3"
             self.playing = False
 
@@ -156,7 +158,7 @@ class Game:
                 draw_hp(sprite)
             self.screen.blit(sprite.image, self.camera.apply(sprite))
 
-        mouse = FONT.render("Librarians alive: " + str(len(self.mobs)), True, RED)
+        mouse = FONT.render("Librarians killed: " + str(self.player.librarians_killed), True, RED)
         self.screen.blit(mouse, (10, 30))
 
         for i in range(self.lives):
@@ -185,7 +187,7 @@ class Game:
         fade_in(self.screen)
         font = pg.font.Font(None, 74)
         death_text = font.render("You Died", True, (255, 0, 0))
-        score_text = font.render(f"Score: {self.player.zombies_killed}", True, (255, 255, 255))
+        score_text = font.render(f"Score: {self.player.librarians_killed}", True, (255, 255, 255))
         replay_text = font.render("Replay Game", True, (255, 255, 255))
         replay_rect = replay_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 100))
 
