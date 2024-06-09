@@ -6,15 +6,9 @@ from .tmap import collide_hit_rect
 
 vec = pg.math.Vector2
 
-def get_angle(sprite):
-    mouse_x, mouse_y = pg.mouse.get_pos()
-    rel_x, rel_y = mouse_x - sprite.rect.centerx, mouse_y - sprite.rect.centery
-    angle = (180 / math.pi) * -math.atan2(rel_y, rel_x)
-    return angle
 
 def sprite_collision(sprite, group, dir):
-    """Call this when player or mob collides with a wall."""
-    if dir == 'x':
+    if dir == "x":
         hits = pg.sprite.spritecollide(sprite, group, False, collide_hit_rect)
         if hits:
             if hits[0].rect.centerx > sprite.hit_rect.centerx:
@@ -23,7 +17,7 @@ def sprite_collision(sprite, group, dir):
                 sprite.pos.x = hits[0].rect.right + sprite.hit_rect.width / 2
             sprite.vel.x = 0
             sprite.hit_rect.centerx = sprite.pos.x
-    if dir == 'y':
+    if dir == "y":
         hits = pg.sprite.spritecollide(sprite, group, False, collide_hit_rect)
         if hits:
             if hits[0].rect.centery > sprite.hit_rect.centery:
@@ -33,11 +27,9 @@ def sprite_collision(sprite, group, dir):
             sprite.vel.y = 0
             sprite.hit_rect.centery = sprite.pos.y
 
-class Player(pg.sprite.Sprite):
-    """The Player class: the main player of the game."""
 
+class Player(pg.sprite.Sprite):
     def __init__(self, game, x, y):
-        """Initialize the Player and its attributes."""
         self.groups = game.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
@@ -54,50 +46,47 @@ class Player(pg.sprite.Sprite):
         self.last_shot = 0
         self.hp = PLAYER_HP
         self.librarians_killed = 0
-        self.shoot_cooldown = 500  # Cooldown time in milliseconds
+        self.shoot_cooldown = 500
         self.last_update = 0
         self.current_frame = 0
 
     def get_keys(self):
-        """Gets keyboard inputs and moves the player according to that."""
         self.vel = vec(0, 0)
         keys = pg.key.get_pressed()
-        if keys[pg.K_a]:  # Left
+        if keys[pg.K_a]:
             self.vel.x = -PLAYER_SPEED
-        if keys[pg.K_d]:  # Right
+        if keys[pg.K_d]:
             self.vel.x = PLAYER_SPEED
-        if keys[pg.K_w]:  # Up
+        if keys[pg.K_w]:
             self.vel.y = -PLAYER_SPEED
-        if keys[pg.K_s]:  # Down
+        if keys[pg.K_s]:
             self.vel.y = PLAYER_SPEED
         if self.vel.x != 0 and self.vel.y != 0:
             self.vel *= 0.85
 
     def get_mouse(self):
-        """Handle mouse input for firing bullets."""
         mouse_pressed = pg.mouse.get_pressed()
-        if mouse_pressed[0]:  # Left mouse button
+        if mouse_pressed[0]:
             now = pg.time.get_ticks()
             if now - self.last_shot > self.shoot_cooldown:
                 self.last_shot = now
                 mouse_pos = pg.mouse.get_pos()
+                mouse_pos = vec(mouse_pos) + self.game.camera.camera.topleft
                 direction = vec(mouse_pos[0] - self.pos.x, mouse_pos[1] - self.pos.y).normalize()
                 Bullet(self.game, self.pos, direction)
 
     def update(self):
-        """Updates for the loop."""
         self.get_keys()
         self.get_mouse()
         self.pos += self.vel * self.game.dt
         self.hit_rect.centerx = self.pos.x
-        sprite_collision(self, self.game.walls, 'x')
+        sprite_collision(self, self.game.walls, "x")
         self.hit_rect.centery = self.pos.y
-        sprite_collision(self, self.game.walls, 'y')
+        sprite_collision(self, self.game.walls, "y")
         self.rect.center = self.hit_rect.center
 
-        # Animate the player
         now = pg.time.get_ticks()
-        if now - self.last_update > 200:  # Change frame every 200 ms
+        if now - self.last_update > 200:
             self.last_update = now
             self.current_frame = (self.current_frame + 1) % 2
             if self.current_frame == 0:
@@ -105,14 +94,12 @@ class Player(pg.sprite.Sprite):
             else:
                 self.image = self.walk2_img
 
-            if self.vel.x < 0:  # Moving left
+            if self.vel.x < 0:
                 self.image = pg.transform.flip(self.image, True, False)
-            elif self.vel.x > 0:  # Moving right
+            elif self.vel.x > 0:
                 self.image = self.image
             self.rect = self.image.get_rect()
             self.rect.center = self.hit_rect.center
-
-
 
 
 def avoid_mobs(sprite):
@@ -121,6 +108,7 @@ def avoid_mobs(sprite):
             distance = sprite.pos - mob.pos
             if 0 < distance.length() < AVOID_RADIUS:
                 sprite.acc += distance.normalize()
+
 
 def draw_hp(sprite):
     if sprite.hp > 0.60 * sprite.mob_hp:
@@ -134,11 +122,9 @@ def draw_hp(sprite):
     if sprite.hp < sprite.mob_hp:
         pg.draw.rect(sprite.image, color, sprite.hp_bar)
 
-class Mob(pg.sprite.Sprite):
-    """The Mob class: the mobs that chase after the player (librarians)."""
 
+class Mob(pg.sprite.Sprite):
     def __init__(self, game, x, y):
-        """Initialize a Mob and its attributes."""
         self.groups = game.all_sprites, game.mobs
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
@@ -160,7 +146,7 @@ class Mob(pg.sprite.Sprite):
     def update(self):
         """Updates the position etc for the loop."""
         target_dist = self.target.pos - self.pos
-        if target_dist.length_squared() < MOB_DETECT ** 2:
+        if target_dist.length_squared() < MOB_DETECT**2:
             self.rot = target_dist.angle_to(vec(1, 0))
             self.image = pg.transform.rotate(self.game.mob_img, self.rot)
             self.rect = self.image.get_rect()
@@ -170,18 +156,16 @@ class Mob(pg.sprite.Sprite):
             self.acc.scale_to_length(self.speed)
             self.acc += self.vel * -1
             self.vel += self.acc * self.game.dt
-            self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt ** 2
+            self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt**2
             self.rect.center = self.pos
         draw_hp(self)
         if self.hp <= 0:
             self.kill()
-            self.game.player.librarians_killed += 1
+            # self.game.player.librarians_killed += 1
+
 
 class Mob2(pg.sprite.Sprite):
-    """The Mob2 class: the mobs that chase after the player (librarians)."""
-
     def __init__(self, game, x, y):
-        """Initialize a Mob2 and its attributes."""
         self.groups = game.all_sprites, game.mobs
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
@@ -200,7 +184,6 @@ class Mob2(pg.sprite.Sprite):
         self.speed = choice(MOB_SPEEDS)
 
     def update(self):
-        """Updates the position etc for the loop."""
         self.rot = (self.game.player.pos - self.pos).angle_to(vec(1, 0))
         self.image = pg.transform.rotate(self.game.mob2_img, self.rot)
         self.rect = self.image.get_rect()
@@ -210,18 +193,16 @@ class Mob2(pg.sprite.Sprite):
         self.acc.scale_to_length(self.speed)
         self.acc += self.vel * -1
         self.vel += self.acc * self.game.dt
-        self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt ** 2
+        self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt**2
         self.rect.center = self.pos
         draw_hp(self)
         if self.hp <= 0:
             self.kill()
-            self.game.player.librarians_killed += 1
+            # self.game.player.librarians_killed += 1
+
 
 class Mob3(pg.sprite.Sprite):
-    """The Mob3 class: the mobs that chase after the player (librarians)."""
-
     def __init__(self, game, x, y):
-        """Initialize a Mob3 and its attributes."""
         self.groups = game.all_sprites, game.mobs
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
@@ -240,7 +221,6 @@ class Mob3(pg.sprite.Sprite):
         self.speed = choice(MOB_SPEEDS)
 
     def update(self):
-        """Updates the position etc for the loop."""
         self.rot = (self.game.player.pos - self.pos).angle_to(vec(1, 0))
         self.image = pg.transform.rotate(self.game.mob3_img, self.rot)
         self.rect = self.image.get_rect()
@@ -250,26 +230,24 @@ class Mob3(pg.sprite.Sprite):
         self.acc.scale_to_length(self.speed)
         self.acc += self.vel * -1
         self.vel += self.acc * self.game.dt
-        self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt ** 2
+        self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt**2
         self.rect.center = self.pos
         draw_hp(self)
         if self.hp <= 0:
             self.kill()
-            self.game.player.librarians_killed += 1
+            # self.game.player.librarians_killed += 1
+
 
 class Bullet(pg.sprite.Sprite):
-    """The Bullet class: the bullets for the gun."""
-
     def __init__(self, game, pos, direction):
-        """Initialize a bullet and its attributes."""
         self.groups = game.all_sprites, game.bullets
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.image = game.bullet_img
         self.rect = self.image.get_rect()
-        self.pos = vec(pos)
-        self.rect.center = pos
-        self.vel = direction * BULLET_SPEED
+        self.pos = vec(pos)  # Ensure pos is a Vector2
+        self.rect.center = self.pos
+        self.vel = direction.normalize() * BULLET_SPEED  # Normalize direction
         self.spawn_time = pg.time.get_ticks()
 
     def update(self):
@@ -278,11 +256,9 @@ class Bullet(pg.sprite.Sprite):
         if pg.time.get_ticks() - self.spawn_time > BULLET_TRAVEL:
             self.kill()
 
-class Wall(pg.sprite.Sprite):
-    """The Wall class: the first type of wall in the game."""
 
+class Wall(pg.sprite.Sprite):
     def __init__(self, game, x, y):
-        """Initialize Wall and its attributes."""
         self.groups = game.all_sprites, game.walls
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
@@ -294,11 +270,9 @@ class Wall(pg.sprite.Sprite):
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE
 
-class Wall2(pg.sprite.Sprite):
-    """The Wall class: the second type of wall in the game."""
 
+class Wall2(pg.sprite.Sprite):
     def __init__(self, game, x, y):
-        """Initialize Wall2 and its attributes."""
         self.groups = game.all_sprites, game.walls
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game

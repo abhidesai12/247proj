@@ -44,7 +44,7 @@ def show_win_screen(screen):
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if exit_rect.collidepoint(event.pos):
-                    return  # Exit the win screen
+                    return
 
         screen.fill((0, 0, 0))
         screen.blit(win_text, (screen.get_width() // 2 - win_text.get_width() // 2, screen.get_height() // 2 - win_text.get_height() // 2))
@@ -62,7 +62,6 @@ def run_level3():
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-    # Load images for player animation
     walk1_img = pygame.image.load("./images/walk1.png")
     walk2_img = pygame.image.load("./images/walk2.png")
 
@@ -82,7 +81,6 @@ def run_level3():
             self.field_width = field_width
             self.field_height = field_height
 
-            # Load sprites for animation
             self.walk1_img = pygame.transform.scale(walk1_img, (self.width, self.height))
             self.walk2_img = pygame.transform.scale(walk2_img, (self.width, self.height))
             self.current_image = self.walk1_img
@@ -109,13 +107,12 @@ def run_level3():
 
         def update(self):
             if self.walking:
-                self.walk_count = (self.walk_count + 1) % 20  # Adjust this value to change the animation speed
+                self.walk_count = (self.walk_count + 1) % 20
                 if self.walk_count < 10:
                     self.current_image = self.walk1_img
                 else:
                     self.current_image = self.walk2_img
 
-                # Flip the image based on the direction
                 if self.facing_left:
                     self.current_image = pygame.transform.flip(self.current_image, True, False)
             else:
@@ -135,9 +132,9 @@ def run_level3():
             pygame.mixer.music.play(-1)
 
         is_running = True
-        # TOP LEFT
+
         start_zone = Field(FIELD_X + 235, FIELD_Y + 5, 60, 10)
-        # BOTTOM RIGHT
+
         finish_zone = Field(FIELD_X + 235, FIELD_Y + FIELD_HEIGHT - 50, 60, 10, color=(60, 163, 5))
         player = Player(
             start_zone.x + start_zone.width // 2,
@@ -209,7 +206,7 @@ def run_level3():
 
         heart_image = pygame.image.load("./images/heart.png")
         heart_image = pygame.transform.scale(heart_image, (30, 30))
-        lives = 3  # Number of lives/hearts
+        lives = 3
 
         font = pygame.font.Font("freesansbold.ttf", 18)
 
@@ -228,7 +225,7 @@ def run_level3():
                 lives -= 1
                 if lives <= 0:
                     show_death_screen()
-                    game_state["current_level"] = "level_3"  # Ensure level 3 is set correctly
+                    game_state["current_level"] = "level_3"
                     is_running = False
                     return
 
@@ -268,9 +265,9 @@ def run_level3():
                         sys.exit()
                     elif event.type == pygame.MOUSEBUTTONDOWN:
                         if replay_rect.collidepoint(event.pos):
-                            game_state["current_level"] = "level_3"  # Ensure level 3 is set correctly
+                            game_state["current_level"] = "level_3"
                             run_level3()
-                            return  # Exit the death screen to restart the game
+                            return
 
                 screen.fill((0, 0, 0))
                 screen.blit(
@@ -306,19 +303,15 @@ def run_level3():
     new_background_image = pygame.image.load("./images/bg2.png")
     new_background_image = pygame.transform.scale(new_background_image, (FIELD_WIDTH, FIELD_HEIGHT))
 
-    # Play the first playthrough
     if not play_level(1, field_image, (255, 255, 255)):
         return
 
-    # Fade out and then in before the second playthrough
     fade_out(screen)
     fade_in(screen)
 
-    # Play the second playthrough
     if not play_level(2, new_background_image, (0, 0, 0), "sound/dunk.mp3"):
         return
 
-    # Restart the background music
     pygame.mixer.music.load("sound/background.mp3")
     pygame.mixer.music.play(-1)
 

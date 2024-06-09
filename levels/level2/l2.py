@@ -8,7 +8,8 @@ from .tmap import *
 from .gui import *
 from time import sleep
 from random import randint, randrange, uniform
-from g import game_state  # Import game_state to update the current level
+from g import game_state
+
 
 def fade_in(window, color=(0, 0, 0)):
     """Function to fade in."""
@@ -20,6 +21,7 @@ def fade_in(window, color=(0, 0, 0)):
         pg.display.update()
         pg.time.delay(10)
 
+
 def fade_out(window, color=(0, 0, 0)):
     """Function to fade out."""
     fade_surface = pg.Surface(window.get_size())
@@ -29,6 +31,7 @@ def fade_out(window, color=(0, 0, 0)):
         window.blit(fade_surface, (0, 0))
         pg.display.update()
         pg.time.delay(10)
+
 
 class Game:
     """The main game class: Contains main game loop."""
@@ -41,32 +44,30 @@ class Game:
         self.clock = pg.time.Clock()
         pg.key.set_repeat(30, 30)
         self.load_data()
-        self.spawn_rate = 5000  # Initial spawn rate in milliseconds
+        self.spawn_rate = 3000
         self.last_spawn_time = pg.time.get_ticks()
         self.start_time = pg.time.get_ticks()
 
     def load_data(self):
         """Loads data from file, such as images, sounds, etc."""
         game_folder = path.dirname(__file__)
-        img_folder = path.join(game_folder, 'img')
-        sound_folder = path.join(path.dirname(game_folder), 'sound')
-        self.map = Map(path.join(game_folder, 'map_small.txt'))
-        self.walk1_img = pg.image.load(path.join(img_folder, 'walk1.png')).convert_alpha()
-        self.walk2_img = pg.image.load(path.join(img_folder, 'walk2.png')).convert_alpha()
+        img_folder = path.join(game_folder, "img")
+        sound_folder = path.join(path.dirname(game_folder), "sound")
+        self.map = Map(path.join(game_folder, "map_small.txt"))
+        self.walk1_img = pg.image.load(path.join(img_folder, "walk1.png")).convert_alpha()
+        self.walk2_img = pg.image.load(path.join(img_folder, "walk2.png")).convert_alpha()
         self.bullet_img = pg.image.load(path.join(img_folder, BULLET_IMG)).convert_alpha()
         self.mob_img = pg.image.load(path.join(img_folder, MOB_IMG)).convert_alpha()
         self.mob2_img = pg.image.load(path.join(img_folder, MOB_IMG2)).convert_alpha()
         self.mob3_img = pg.image.load(path.join(img_folder, MOB_IMG3)).convert_alpha()
-        self.heart_img = pg.image.load(path.join(img_folder, 'heart.png')).convert_alpha()
+        self.heart_img = pg.image.load(path.join(img_folder, "heart.png")).convert_alpha()
         self.heart_img = pg.transform.scale(self.heart_img, (30, 30))
         self.pausedScreen = pg.Surface(self.screen.get_size()).convert_alpha()
         self.pausedScreen.fill((0, 0, 0, 180))
 
-        # Load sounds
         self.hit_sound = pg.mixer.Sound("sound/hit.mp3")
         self.end_sound = pg.mixer.Sound("sound/end.mp3")
         self.destroy_sound = pg.mixer.Sound("sound/destroy.wav")
-
 
     def new(self):
         """Initialize all variables and set up for new game."""
@@ -74,25 +75,24 @@ class Game:
         self.walls = pg.sprite.Group()
         self.mobs = pg.sprite.Group()
         self.bullets = pg.sprite.Group()
-        self.player = Player(self, 0, 0)  # Instantiate the player
-        self.player.librarians_killed = 0  # Reset librarians killed count
-        self.lives = 3  # Number of lives/hearts
+        self.player = Player(self, 3, 3)
+        self.player.librarians_killed = 0
+        self.lives = 3
         for row, tiles in enumerate(self.map.map_data):
             for col, tile in enumerate(tiles):
                 self.map_row = row
                 self.map_col = col
-                if tile == '1':
+                if tile == "1":
                     Wall(self, col, row)
-                if tile == '2':
+                if tile == "2":
                     Wall2(self, col, row)
-                if tile == 'M':
+                if tile == "M":
                     Mob(self, col, row)
-                if tile == 'H':
+                if tile == "H":
                     Mob2(self, col, row)
-                if tile == 'T':
+                if tile == "T":
                     Mob3(self, col, row)
-                if tile == 'P':
-                    self.player = Player(self, col, row)
+
         self.camera = Camera(self.map.width, self.map.height)
         self.paused = False
 
@@ -115,37 +115,34 @@ class Game:
         """Updates the loop for every frame, etc."""
         self.all_sprites.update()
         self.camera.update(self.player)
-        # MOBS HITTING PLAYER
+
         hits = pg.sprite.spritecollide(self.player, self.mobs, False, collide_hit_rect)
         if hits:
-            self.lives -= 1  # Reduce lives
-            self.hit_sound.play()  # Play hit sound
+            self.lives -= 1
+            self.hit_sound.play()
             if self.lives <= 0:
                 self.show_death_screen()
                 game_state["current_level"] = "level_2"
                 self.playing = False
                 return
-            self.player.pos += vec(MOB_KNOCKBACK, 0).rotate(-hits[0].rot)
-            self.player.hp = PLAYER_HP  # Reset player health
+            self.player.pos = vec(3, 3) * TILESIZE
+            self.player.hp = PLAYER_HP
 
-        # BULLET HITTING MOBS
         hits = pg.sprite.groupcollide(self.mobs, self.bullets, False, True)
         for hit in hits:
-            hit.hp = 0  # Set mob health to 0 to kill it immediately
+            hit.hp = 0
             hit.vel = vec(0, 0)
-            self.destroy_sound.play()  # Play destroy sound
-            self.player.librarians_killed += 1  # Increase kill count
+            self.destroy_sound.play()
+            self.player.librarians_killed += 1
 
-        # Ensure a constant number of mobs are always present and progressively increase difficulty
         current_time = pg.time.get_ticks()
-        if current_time - self.start_time > 300000:  # 5 minutes
-            self.spawn_rate = 500  # Maximum spawn rate
+        if current_time - self.start_time > 300000:
+            self.spawn_rate = 200
         elif current_time - self.last_spawn_time > self.spawn_rate:
             self.spawn_mob()
             self.last_spawn_time = current_time
-            self.spawn_rate = max(4000, self.spawn_rate - 10)  # Gradually decrease spawn rate
+            self.spawn_rate = max(2000, self.spawn_rate - 50)
 
-        # Check if the player can progress to the next level
         if self.player.librarians_killed >= 25:
             game_state["current_level"] = "level_3"
             self.playing = False
@@ -198,7 +195,7 @@ class Game:
                     sys.exit()
                 elif event.type == pg.MOUSEBUTTONDOWN:
                     if replay_rect.collidepoint(event.pos):
-                        return  # Exit the death screen to restart the game
+                        return
 
             self.screen.fill((0, 0, 0))
             self.screen.blit(
@@ -221,17 +218,17 @@ class Game:
 
     def spawn_mob(self):
         """Function to spawn a new mob."""
-        mob_type = random.choice(['M', 'H', 'T'])
-        if mob_type == 'M':
+        mob_type = random.choice(["M", "H", "T"])
+        if mob_type == "M":
             Mob(self, random.randint(0, self.map_col), random.randint(0, self.map_row))
-        elif mob_type == 'H':
+        elif mob_type == "H":
             Mob2(self, random.randint(0, self.map_col), random.randint(0, self.map_row))
-        elif mob_type == 'T':
+        elif mob_type == "T":
             Mob3(self, random.randint(0, self.map_col), random.randint(0, self.map_row))
 
-# Function to run level 2
+
 def run_level2():
-    g = Game()  # Making an instance of your Game class (then calling the functions).
+    g = Game()
     g.show_start_screen()
     while True:
         g.new()

@@ -40,19 +40,13 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
 # Load backgrounds
-backgrounds = {
-    "lab": pygame.image.load('assets/backgrounds/background_lab.png'),
-    "green": pygame.image.load('assets/backgrounds/background_green.png'),
-    "frat_house": pygame.image.load('assets/backgrounds/background_frat_house.png'),
-    "dish": pygame.image.load('assets/backgrounds/background_dish.png'),
-    "confetti": pygame.image.load('assets/backgrounds/background_confetti.png')
-}
+backgrounds = {"lab": pygame.image.load("assets/backgrounds/background_lab.png"), "green": pygame.image.load("assets/backgrounds/background_green.png"), "frat_house": pygame.image.load("assets/backgrounds/background_frat_house.png"), "dish": pygame.image.load("assets/backgrounds/background_dish.png"), "confetti": pygame.image.load("assets/backgrounds/background_confetti.png")}
 
 # Load and scale character images
-mtl_image = pygame.transform.scale(pygame.image.load('assets/characters/mtl.png'), (150, 225))
-player_image = pygame.transform.scale(pygame.image.load('assets/characters/player.png'), (100, 150))
-mtl_monster_image = pygame.transform.scale(pygame.image.load('assets/characters/mtl_monster.png'), (150, 200))
-frat_guy_image = pygame.transform.scale(pygame.image.load('assets/characters/frat_guy.png'), (100, 150))
+mtl_image = pygame.transform.scale(pygame.image.load("assets/characters/mtl.png"), (150, 225))
+player_image = pygame.transform.scale(pygame.image.load("assets/characters/player.png"), (100, 150))
+mtl_monster_image = pygame.transform.scale(pygame.image.load("assets/characters/mtl_monster.png"), (150, 200))
+frat_guy_image = pygame.transform.scale(pygame.image.load("assets/characters/frat_guy.png"), (100, 150))
 
 # Font
 font = pygame.font.Font(None, 36)
@@ -64,18 +58,16 @@ cutscenes = {
         {"bg": "lab", "character": "MTL", "text": "Brilliant work! And it's all I need to grow my empire. These trees will be the root of my rule across the land. The seeds of my conquest are now planted!"},
         {"bg": "lab", "character": "MTL Leaves", "text": ""},
         {"bg": "lab", "character": "Player", "text": "That’s my life's work you're twisting! It's meant for peace, not power! Come back with my tree-tise!"},
-        {"bg": "lab", "character": "Player", "text": "He's heading towards Green library! He must be planning to gather followers for his scheme. I need to stop him before it takes root."}
+        {"bg": "lab", "character": "Player", "text": "He's heading towards Green library! He must be planning to gather followers for his scheme. I need to stop him before it takes root."},
     ],
-    "intro_2": [
-        {"bg": "green", "character": "Player", "text": "Green is swarming with MTL's new recruits, blending in as students. To reach MTL, I'll need to sneak past or confront his minions."}
-    ],
+    "intro_2": [{"bg": "green", "character": "Player", "text": "Green is swarming with MTL's new recruits, blending in as students. To reach MTL, I'll need to sneak past or confront his minions."}],
     "intro_3": [
         {"bg": "frat_house", "character": "Player", "text": "I made it out alive! There he is, slipping away! If I don't catch him soon, his plan will sprout across campus. I think I saw him headed towards the row… I know there’s a party going on there, but I’m sure it’ll be fine to just walk on by."},
         {"bg": "frat_house", "character": "Frat Guard", "text": "Whoa there, you need a wristband. This party's roots are deep and exclusive!"},
         {"bg": "frat_house", "character": "Player", "text": "I just need to... prune some information. Let me through, please?"},
         {"bg": "frat_house", "character": "Frat Guard Leaves", "text": ""},
         {"bg": "frat_house", "character": "Player", "text": "This frat house is a maze of partygoers. I need to navigate this thicket without drawing attention."},
-        {"bg": "frat_house", "character": "Player", "text": "MTL's leaving already? He must be heading to his next spot to further his plans. Can't let him go!"}
+        {"bg": "frat_house", "character": "Player", "text": "MTL's leaving already? He must be heading to his next spot to further his plans. Can't let him go!"},
     ],
     "intro_4": [
         {"bg": "dish", "character": "Player", "text": "The Dish! He's going there to amplify his control over the treeified beings with its powerful antennas. This is where he'll seed his new world unless I stop him!"},
@@ -84,12 +76,11 @@ cutscenes = {
         {"bg": "dish", "character": "Player", "text": "To counteract the signal, I need to overload the system with everything Stanford. Yelling our slang might just do the trick!"},
         {"bg": "dish", "character": "Narrator", "text": "It's time to type up a storm! Disrupt his control by flooding the network with Stanford spirit!"},
         {"bg": "dish", "character": "Player", "text": "This is your last chance, MTL. Return what you stole or brace yourself for a fall!"},
-        {"bg": "dish", "character": "MTL", "text": "Prepare yourself! I've grafted myself with treeification technology. You're about to face the full force of nature!", "transform": True}
+        {"bg": "dish", "character": "MTL", "text": "Prepare yourself! I've grafted myself with treeification technology. You're about to face the full force of nature!", "transform": True},
     ],
-    "celebration": [
-        {"bg": "confetti", "character": "Narrator", "text": "With MTL's defeat, the trees are liberated from his control. Peace and natural growth will once again define our campus landscape. The true potential of treeification can now be explored safely.", "no_characters": True}
-    ]
+    "celebration": [{"bg": "confetti", "character": "Narrator", "text": "With MTL's defeat, the trees are liberated from his control. Peace and natural growth will once again define our campus landscape. The true potential of treeification can now be explored safely.", "no_characters": True}],
 }
+
 
 # Function to display text within a textbox
 def display_text(screen, text, position):
@@ -97,7 +88,7 @@ def display_text(screen, text, position):
     textbox_rect = pygame.Rect(30, 420, WIDTH - 60, 150)
     pygame.draw.rect(screen, BLACK, textbox_rect)
     pygame.draw.rect(screen, WHITE, textbox_rect, 2)
-    
+
     # Render and split text into multiple lines if necessary
     words = text.split()
     lines = []
@@ -111,6 +102,7 @@ def display_text(screen, text, position):
     for i, line in enumerate(lines):
         text_surface = font.render(line, True, WHITE)
         screen.blit(text_surface, (textbox_rect.x + 10, textbox_rect.y + 10 + i * font.get_height()))
+
 
 # Function to play cutscene
 def play_cutscene(cutscene_key):
@@ -176,11 +168,12 @@ def play_cutscene(cutscene_key):
         pygame.display.flip()
         clock.tick(30)
 
+
 def main():
     while True:
         current_level = game_state.get("current_level")
         if current_level == "intro":
-            run_intro()
+            run_level2()
             play_cutscene("intro_1")
             game_state["current_level"] = "level_2"
         elif current_level == "level_2":
@@ -202,6 +195,7 @@ def main():
         else:
             print("Invalid level")
             break
+
 
 if __name__ == "__main__":
     main()

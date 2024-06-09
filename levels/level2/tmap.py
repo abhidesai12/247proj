@@ -1,11 +1,10 @@
 import pygame as pg
 from .settings import *
 
+
 def collide_hit_rect(one, two):
     return one.hit_rect.colliderect(two.rect)
 
-S_WIDTH = 0
-S_WIDTH = 0
 
 class Map:
     """The Map class: the map of the game."""
@@ -13,7 +12,7 @@ class Map:
     def __init__(self, filename):
         """Initialize the Map and it's attributes."""
         self.map_data = []
-        with open(filename, 'rt') as f:
+        with open(filename, "rt") as f:
             for line in f:
                 self.map_data.append(line.strip())
 
@@ -21,8 +20,7 @@ class Map:
         self.tileHeight = len(self.map_data)
         self.width = self.tileWidth * TILESIZE
         self.height = self.tileHeight * TILESIZE
-        S_WIDTH = self.tileWidth
-        S_HEIGHT = self.tileHeight
+
 
 class Camera:
     """The Camera class: the camera that follows the player around."""
@@ -37,8 +35,8 @@ class Camera:
         return entity.rect.move(self.camera.topleft)
 
     def update(self, target):
-        x = -target.rect.centerx + int(WIDTH/2)
-        y = -target.rect.centery + int(HEIGHT/2)
+        x = -target.rect.centerx + int(WIDTH / 2)
+        y = -target.rect.centery + int(HEIGHT / 2)
 
         x = min(0, x)
         y = min(0, y)
